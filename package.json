@@ -1,0 +1,25 @@
+{
+  "name": "sprimshing-apps",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@itsravenous/google-sheets-public": "^2.0.0",
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsravenous/sprimshing-apps.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itsravenous/sprimshing-apps/issues"
+  },
+  "homepage": "https://github.com/itsravenous/sprimshing-apps#readme"
+}
