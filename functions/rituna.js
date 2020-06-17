@@ -1,4 +1,4 @@
-const axios = require("axios");
+const fetch = require("node-fetch");
 const { fetchSheet } = require("@itsravenous/google-sheets-public");
 const { RITUNA_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
 const { getDataFromSlackRequest } = require("../utils");
@@ -97,8 +97,9 @@ exports.handler = async (event, context, callback) => {
   });
 
   if (payload) {
-    await axios.post(payload.response_url, {
-      text: response,
+    await fetch(payload.response_url, {
+      method: "post",
+      body: response,
       response_type: "ephemeral"
     });
     callback(null, 200); // Send acknowledgment response (see https://api.slack.com/interactivity/handling#acknowledgment_response)
