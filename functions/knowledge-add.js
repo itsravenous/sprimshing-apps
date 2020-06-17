@@ -22,7 +22,6 @@ exports.handler = async (event, context, callback) => {
   let [sheetName, ...item] = text.split(" ");
   let itemNameAndDetail = item.join(" ").split("|");
 
-  let response;
   try {
     await appendToSheet({
       serviceAccount,
@@ -38,9 +37,9 @@ exports.handler = async (event, context, callback) => {
   } catch (err) {
     console.error({ err });
     callback(null, {
-      statusCode: 500,
+      statusCode: 200,
       body:
-        "Sorry, failed to add that knowledge. Maybe that subject doesn't have a lore store?"
+        "Sorry, failed to add that knowledge. Maybe that subject doesn't have a lore store yet?"
     });
   }
 };
