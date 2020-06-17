@@ -1,34 +1,42 @@
-const { fetchSheet } = require("@itsravenous/google-sheets-public");
-const { KNOWLEDGE_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
+const { fetchSheet } = require("@itsravenous/google-sheets-private");
+const {
+  KNOWLEDGE_SHEET_ID: SHEET_ID,
+  GOOGLE_SERVICE_ACCOUNT,
+  GOOGLE_CREDENTIALS,
+  GOOGLE_API_KEY
+} = process.env;
 
 const fetchKnowledge = async sheetName => {
   try {
-    const { values } = await fetchSheet({
+    const rows = await fetchSheet({
       sheetId: SHEET_ID,
-      tabName: sheetName,
-      apiKey: GOOGLE_API_KEY
+      sheetName,
+      //apiKey: GOOGLE_API_KEY
+      serviceAccount: JSON.parse(GOOGLE_SERVICE_ACCOUNT),
+      credentials: JSON.parse(GOOGLE_CREDENTIALS)
     });
-    console.log(values);
-  } catch (e) {
-    console.error({ e });
+    return (
+      rows
+        // Filter rows with nothing in col 1 (this should be the key)
+        .filter(entry => entry[0])
+    );
+  } catch (err) {
+    console.error({ err });
     return;
   }
-  return (
-    values
-      // Filter rows with nothing in row 1 (this should be the key)
-      .filter(entry => entry[0])
-  );
 };
 
 const listKnowledge = async sheetname => {
   let knowledge;
   try {
     knowledge = await fetchKnowledge(sheetname);
-  } catch {
+  } catch (err) {
+    console.error({ err });
     return "Nothing is known about the subject `" + sheetname + "`";
   }
 
   let header = knowledge[0][0];
+  console.log({ header });
   let result = knowledge
     .slice(1)
     .map(element => element[0])

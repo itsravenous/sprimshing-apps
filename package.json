@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "@itsravenous/google-sheets-private": "^1.0.0",
     "@itsravenous/google-sheets-public": "^2.0.0",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
