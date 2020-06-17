@@ -1,4 +1,5 @@
 const { appendToSheet } = require("@itsravenous/google-sheets-private");
+const { getTextFromSlackRequest } = require("../utils.js");
 const {
   RITUNA_SHEET_ID: SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT,
@@ -9,15 +10,7 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 exports.handler = async (event, context, callback) => {
-  let { text } = JSON.parse(
-    '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    (key, value) =>
-      key === ""
-        ? value
-        : decodeURIComponent(value)
-            .replace(/\+/g, " ")
-            .trim()
-  );
+  const text = getTextFromSlackRequest(event);
   let [sheetName, ...item] = text.split(" ");
   let itemNameAndDetail = item.join(" ").split("|");
 
