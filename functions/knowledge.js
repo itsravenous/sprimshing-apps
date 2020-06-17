@@ -6,14 +6,16 @@ const {
   GOOGLE_API_KEY
 } = process.env;
 
+const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
+const credentials = JSON.parse(GOOGLE_CREDENTIALS);
+
 const fetchKnowledge = async sheetName => {
   try {
     const rows = await fetchSheet({
       sheetId: SHEET_ID,
       sheetName,
-      //apiKey: GOOGLE_API_KEY
-      serviceAccount: JSON.parse(GOOGLE_SERVICE_ACCOUNT),
-      credentials: JSON.parse(GOOGLE_CREDENTIALS)
+      serviceAccount,
+      credentials
     });
     return (
       rows
@@ -98,5 +100,3 @@ exports.handler = async (event, context, callback) => {
     body: response
   });
 };
-
-listKnowledge("flora");
