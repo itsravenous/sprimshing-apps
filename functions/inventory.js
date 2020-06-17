@@ -1,4 +1,5 @@
 const { fetchSheet } = require("@itsravenous/google-sheets-public");
+const { getDataFromSlackRequest } = require("../utils");
 const {
   INVENTORY_SHEET_ID: SHEET_ID,
   GOOGLE_API_KEY,
@@ -45,11 +46,7 @@ const inventoryToText = inventory => {
 exports.getInventory = getInventory;
 exports.inventoryToText = inventoryToText;
 exports.handler = async (event, context, callback) => {
-  const { user_name } = JSON.parse(
-    '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    (key, value) =>
-      key === "" ? value : decodeURIComponent(value).replace(/\+/g, " ")
-  );
+  const { user_name } = getDataFromSlackRequest(event);
 
   console.log("===================================");
   console.log("Getting inventory for", user_name);
