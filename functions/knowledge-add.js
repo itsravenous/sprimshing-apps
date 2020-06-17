@@ -19,8 +19,8 @@ exports.handler = async (event, context, callback) => {
             .replace(/\+/g, " ")
             .trim()
   );
-  let [sheetName, item] = text.split(" ");
-  let itemNameAndDetail = item.split("|");
+  let [sheetName, ...item] = text.split(" ");
+  let itemNameAndDetail = item.join(" ").split("|");
 
   let response;
   try {
