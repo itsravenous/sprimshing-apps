@@ -1,4 +1,5 @@
 const { fetchSheet } = require("@itsravenous/google-sheets-private");
+const { getDataFromSlackRequest } = require("../utils");
 const {
   KNOWLEDGE_SHEET_ID: SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT,
@@ -77,15 +78,7 @@ const detailKnowledge = async (sheetname, itemname) => {
 };
 
 exports.handler = async (event, context, callback) => {
-  let { text } = JSON.parse(
-    '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    (key, value) =>
-      key === ""
-        ? value
-        : decodeURIComponent(value)
-            .replace(/\+/g, " ")
-            .trim()
-  );
+  const { text } = getDataFromSlackRequest(event);
   let [dictionaryName, ...entryName] = text.split(" ");
   entryName = entryName.join(" ");
   let response;

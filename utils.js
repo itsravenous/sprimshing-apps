@@ -1,5 +1,5 @@
-module.exports.getTextFromSlackRequest = event => {
-  const { text } = JSON.parse(
+module.exports.getDataFromSlackRequest = event =>
+  JSON.parse(
     '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
     (key, value) =>
       key === ""
@@ -8,5 +8,3 @@ module.exports.getTextFromSlackRequest = event => {
             .replace(/\+/g, " ")
             .trim()
   );
-  return text;
-};

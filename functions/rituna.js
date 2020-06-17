@@ -1,6 +1,7 @@
 const axios = require("axios");
 const { fetchSheet } = require("@itsravenous/google-sheets-public");
 const { RITUNA_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
+const { getDataFromSlackRequest } = require("../utils");
 
 const escapeForRegex = s => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
 
@@ -77,15 +78,7 @@ exports.batchTranslate = async () => {
 };
 
 exports.handler = async (event, context, callback) => {
-  let { text, payload } = JSON.parse(
-    '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    (key, value) =>
-      key === ""
-        ? value
-        : decodeURIComponent(value)
-            .replace(/\+/g, " ")
-            .trim()
-  );
+  const { text, payload } = getDataFromSlackRequest(event);
   // Payload property indicates request is from a context menu "action"
   // We split the action by underscore to get the direction and dictionary
   let direction, dictionaryName, words;
