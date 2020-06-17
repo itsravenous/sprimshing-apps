@@ -1,13 +1,18 @@
-const axios = require("axios");
 const { fetchSheet } = require("@itsravenous/google-sheets-public");
 const { KNOWLEDGE_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
 
 const fetchKnowledge = async sheetName => {
-  const { values } = await fetchSheet({
-    sheetId: SHEET_ID,
-    tabName: sheetName,
-    apiKey: GOOGLE_API_KEY
-  });
+  try {
+    const { values } = await fetchSheet({
+      sheetId: SHEET_ID,
+      tabName: sheetName,
+      apiKey: GOOGLE_API_KEY
+    });
+    console.log(values);
+  } catch (e) {
+    console.error({ e });
+    return;
+  }
   return (
     values
       // Filter rows with nothing in row 1 (this should be the key)
@@ -85,3 +90,5 @@ exports.handler = async (event, context, callback) => {
     body: response
   });
 };
+
+listKnowledge("flora");
