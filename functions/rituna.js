@@ -78,7 +78,7 @@ exports.batchTranslate = async () => {
 };
 
 exports.handler = async (event, context, callback) => {
-  const { text, payload } = getDataFromSlackRequest(event);
+  let { text, payload } = getDataFromSlackRequest(event);
   // Payload property indicates request is from a context menu "action"
   // We split the action by underscore to get the direction and dictionary
   let direction, dictionaryName, words;
