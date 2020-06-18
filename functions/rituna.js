@@ -97,7 +97,7 @@ exports.handler = async (event, context, callback) => {
   });
 
   if (payload) {
-    console.log('responding to menu item')
+    console.log('responding to menu item with', response)
     const res = await fetch(payload.response_url, {
       method: "post",
       body: response,
