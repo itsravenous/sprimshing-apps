@@ -13,10 +13,8 @@ const {
 const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
-exports.handler = async (event, context, callback) => {
-  let { trigger_id } = getDataFromSlackRequest(event);
-
-  return await fetch("https://slack.com/api/views.open", {
+const openModal = async () => {
+  await fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -91,6 +89,22 @@ exports.handler = async (event, context, callback) => {
       }
     })
   });
+};
+
+exports.handler = async (event, context, callback) => {
+  let { trigger_id, payload } = getDataFromSlackRequest(event);
+
+  if (!payload) {
+    // Modal submitted, add the item
+    // addItem()
+    callback(null, {
+      statusCode: 200,
+      body: "Success!"
+    });
+  } else if (payload.type === "view_submission") {
+    // Modal requested, show it
+    openModal();
+  }
   //try {
   //await appendToSheet({
   //serviceAccount,
