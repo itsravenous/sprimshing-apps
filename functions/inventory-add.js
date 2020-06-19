@@ -3,7 +3,7 @@ const { appendToSheet } = require("@itsravenous/google-sheets-private");
 const { fetchSheet } = require("@itsravenous/google-sheets-private");
 const { getDataFromSlackRequest } = require("../utils");
 const {
-  INVENTORY_SHEET_ID: SHEET_ID,
+  KNOWLEDGE_SHEET_ID: SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT,
   GOOGLE_CREDENTIALS,
   GOOGLE_API_KEY,
@@ -84,6 +84,14 @@ const openModal = async ({ trigger_id }) => {
                     emoji: true
                   },
                   value: "sydrel"
+                },
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Test",
+                    emoji: true
+                  },
+                  value: "test"
                 }
               ]
             }
@@ -92,8 +100,18 @@ const openModal = async ({ trigger_id }) => {
       }
     })
   });
+};
 
-  console.log("res", await res.json());
+const addItem = async (player, item) => {
+  const res = await appendToSheet({
+    serviceAccount,
+    credentials,
+    sheetId: SHEET_ID,
+    sheetName: player,
+    data: [item]
+  });
+
+  console.log({ res });
 };
 
 exports.handler = async (event, context, callback) => {
@@ -109,25 +127,15 @@ exports.handler = async (event, context, callback) => {
     });
   } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
-    //addItem();
-    console.log("payload", JSON.stringify(payload, null, 2));
-    console.log(
-      "add to",
-      payload.view.state.values.player.player.selected_option.value
-    );
+    const player =
+      payload.view.state.values.player.player.selected_option.value;
+    addItem(player, "Wood Lion");
     callback(null, {
       statusCode: 200,
       body: "Success!"
     });
   }
   //try {
-  //await appendToSheet({
-  //serviceAccount,
-  //credentials,
-  //sheetId: SHEET_ID,
-  //sheetName,
-  //data: itemNameAndDetail
-  //});
   //callback(null, {
   //statusCode: 200,
   //body: `Successfully added knowledge about \`${itemNameAndDetail[0]}\` to lore store \`${sheetName}\``
