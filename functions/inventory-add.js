@@ -106,7 +106,8 @@ exports.handler = async (event, context, callback) => {
     });
   } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
-    // addItem()
+    //addItem();
+    console.log("payload", JSON.stringify(payload, null, 2));
     callback(null, {
       statusCode: 200,
       body: "Success!"
