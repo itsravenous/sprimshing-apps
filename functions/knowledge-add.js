@@ -1,4 +1,5 @@
 const { appendToSheet } = require("@itsravenous/google-sheets-private");
+const { fetchSheet } = require("@itsravenous/google-sheets-private");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   KNOWLEDGE_SHEET_ID: SHEET_ID,
@@ -16,7 +17,7 @@ exports.handler = async (event, context, callback) => {
   let itemNameAndDetail = item.join(" ").split("|");
 
   try {
-    var existingdata = await authFetchSheet({ auth, sheetId, sheetName});
+    var existingdata = await fetchSheet({ auth, sheetId, sheetName});
     if (existingdata.filter(x => x[0] == data[0])) 
       throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
   
