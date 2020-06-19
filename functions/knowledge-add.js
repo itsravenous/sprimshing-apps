@@ -24,8 +24,8 @@ exports.handler = async (event, context, callback) => {
       credentials
     });
 
-    // if (existingdata.filter(x => x[0] ==  itemNameAndDetail[0])) 
-    //   throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
+    if (existingdata.filter(x => x[0] ==  itemNameAndDetail[0])) 
+      throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
   
   
     await appendToSheet({
@@ -44,7 +44,7 @@ exports.handler = async (event, context, callback) => {
     callback(null, {
       statusCode: 200,
       body:
-        `Sorry, failed to add that knowledge. ${err.message}`
+        `Sorry, failed to add that knowledge. ${err}`
     });
   }
 };
