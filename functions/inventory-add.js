@@ -95,15 +95,15 @@ exports.handler = async (event, context, callback) => {
   let { trigger_id, payload } = getDataFromSlackRequest(event);
 
   if (!payload) {
+    // Modal requested, show it
+    openModal();
+  } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
     // addItem()
     callback(null, {
       statusCode: 200,
       body: "Success!"
     });
-  } else if (payload.type === "view_submission") {
-    // Modal requested, show it
-    openModal();
   }
   //try {
   //await appendToSheet({
