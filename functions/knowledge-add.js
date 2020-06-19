@@ -17,15 +17,15 @@ exports.handler = async (event, context, callback) => {
   let itemNameAndDetail = item.join(" ").split("|");
 
   try {
-    const existingdata = await fetchSheet({
-      sheetId: SHEET_ID,
-      sheetName,
-      serviceAccount,
-      credentials
-    });
+    // const existingdata = await fetchSheet({
+    //   sheetId: SHEET_ID,
+    //   sheetName,
+    //   serviceAccount,
+    //   credentials
+    // });
 
-    if (existingdata.filter(x => x[0] ==  itemNameAndDetail[0])) 
-      throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
+    // if (existingdata.filter(x => x[0] ==  itemNameAndDetail[0])) 
+    //   throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
   
   
     await appendToSheet({
