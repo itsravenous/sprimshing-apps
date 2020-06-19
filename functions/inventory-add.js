@@ -111,6 +111,10 @@ exports.handler = async (event, context, callback) => {
     // Modal submitted, add the item
     //addItem();
     console.log("payload", JSON.stringify(payload, null, 2));
+    console.log(
+      "add to",
+      payload.view.state.values.player.player.selected_option.value
+    );
     callback(null, {
       statusCode: 200,
       body: "Success!"
