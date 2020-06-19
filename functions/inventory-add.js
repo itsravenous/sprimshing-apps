@@ -1,3 +1,4 @@
+const fetch = require("node-fetch");
 const { appendToSheet } = require("@itsravenous/google-sheets-private");
 const { fetchSheet } = require("@itsravenous/google-sheets-private");
 const { getDataFromSlackRequest } = require("../utils");
