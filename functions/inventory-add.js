@@ -15,8 +15,6 @@ const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 exports.handler = async (event, context, callback) => {
   let { trigger_id } = getDataFromSlackRequest(event);
 
-  console.log({ data });
-
   return await fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
