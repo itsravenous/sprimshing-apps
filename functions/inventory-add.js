@@ -12,10 +12,9 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 exports.handler = async (event, context, callback) => {
-  let { user_name, payload } = getDataFromSlackRequest(event);
+  const data = getDataFromSlackRequest(event);
 
-  payload = JSON.parse(payload);
-  console.log({ payload });
+  console.log({ data });
   //try {
   //await appendToSheet({
   //serviceAccount,
