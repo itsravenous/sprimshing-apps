@@ -13,7 +13,7 @@ const {
 const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
-const openModal = async () => {
+const openModal = async ({ trigger_id }) => {
   await fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
@@ -96,7 +96,7 @@ exports.handler = async (event, context, callback) => {
 
   if (!payload) {
     // Modal requested, show it
-    openModal();
+    openModal({ trigger_id });
   } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
     // addItem()
