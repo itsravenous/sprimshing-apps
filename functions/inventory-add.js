@@ -1,9 +1,12 @@
 const fetch = require("node-fetch");
-const { appendToSheet } = require("@itsravenous/google-sheets-private");
-const { fetchSheet } = require("@itsravenous/google-sheets-private");
+const {
+  appendToSheet,
+  fetchSheet,
+  getSpreadSheetRaw
+} = require("@itsravenous/google-sheets-private");
 const { getDataFromSlackRequest } = require("../utils");
 const {
-  KNOWLEDGE_SHEET_ID: SHEET_ID,
+  INVENTORY_SHEET_ID: SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT,
   GOOGLE_CREDENTIALS,
   GOOGLE_API_KEY,
@@ -14,6 +17,13 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 const openModal = async ({ trigger_id }) => {
+  const spreadSheet = await getSpreadSheetRaw({
+    serviceAccount,
+    credentials,
+    sheetId: SHEET_ID
+  });
+  const sheets = spreadSheet.data.sheets.map(sheet => sheet.properties.title);
+
   const res = await fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
@@ -60,40 +70,27 @@ const openModal = async ({ trigger_id }) => {
                 text: "Select player",
                 emoji: true
               },
-              options: [
-                {
-                  text: {
-                    type: "plain_text",
-                    text: "Milric",
-                    emoji: true
-                  },
-                  value: "milric"
+              options: sheets.map(sheet => ({
+                text: {
+                  type: "plain_text",
+                  text: sheet,
+                  emoji: true
                 },
-                {
-                  text: {
-                    type: "plain_text",
-                    text: "Fernoca",
-                    emoji: true
-                  },
-                  value: "fernoca"
-                },
-                {
-                  text: {
-                    type: "plain_text",
-                    text: "Sydrel",
-                    emoji: true
-                  },
-                  value: "sydrel"
-                },
-                {
-                  text: {
-                    type: "plain_text",
-                    text: "Test",
-                    emoji: true
-                  },
-                  value: "test"
-                }
-              ]
+                value: sheet
+              }))
+            }
+          },
+          {
+            type: "input",
+            block_id: "item",
+            element: {
+              type: "plain_text_input",
+              action_id: "item"
+            },
+            label: {
+              type: "plain_text",
+              text: "Item description",
+              emoji: true
             }
           }
         ]
@@ -127,9 +124,11 @@ exports.handler = async (event, context, callback) => {
     });
   } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
-    const player =
-      payload.view.state.values.player.player.selected_option.value;
-    addItem(player, "Wood Lion");
+    const values = payload.view.state.values;
+    const player = values.player.player.selected_option.value;
+    const item = values.item.item.value;
+    console.log({ item });
+    addItem(player, item);
     callback(null, {
       statusCode: 200,
       body: "Success!"
