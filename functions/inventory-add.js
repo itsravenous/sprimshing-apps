@@ -14,7 +14,7 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 const openModal = async ({ trigger_id }) => {
-  await fetch("https://slack.com/api/views.open", {
+  const res = await fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -89,6 +89,8 @@ const openModal = async ({ trigger_id }) => {
       }
     })
   });
+
+  console.log("res", await res.json());
 };
 
 exports.handler = async (event, context, callback) => {
