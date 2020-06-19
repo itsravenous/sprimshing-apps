@@ -46,12 +46,14 @@ const openModal = async ({ trigger_id }) => {
           },
           {
             type: "input",
+            block_id: "player",
             label: {
               type: "plain_text",
               text: "To whose inventory do you wish to add an item?",
               emoji: true
             },
             element: {
+              action_id: "player",
               type: "static_select",
               placeholder: {
                 type: "plain_text",
