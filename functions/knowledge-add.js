@@ -24,7 +24,7 @@ exports.handler = async (event, context, callback) => {
       credentials
     });
 
-    if (existingdata.filter(x => x[0] ==  itemNameAndDetail[0])) 
+    if (existingdata.find(x => x[0] ==  itemNameAndDetail[0])) 
       throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
   
   
