@@ -97,6 +97,10 @@ exports.handler = async (event, context, callback) => {
   if (!payload) {
     // Modal requested, show it
     openModal({ trigger_id });
+    callback(null, {
+      statusCode: 200,
+      body: "open modal"
+    });
   } else if (payload.type === "view_submission") {
     // Modal submitted, add the item
     // addItem()
