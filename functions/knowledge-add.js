@@ -17,7 +17,13 @@ exports.handler = async (event, context, callback) => {
   let itemNameAndDetail = item.join(" ").split("|");
 
   try {
-    var existingdata = await fetchSheet({ auth, sheetId, sheetName});
+    const existingdata = await fetchSheet({
+      sheetId: SHEET_ID,
+      sheetName,
+      serviceAccount,
+      credentials
+    });
+
     if (existingdata.filter(x => x[0] == data[0])) 
       throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
   
