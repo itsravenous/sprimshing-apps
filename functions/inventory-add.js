@@ -96,7 +96,7 @@ const openModal = async ({ trigger_id }) => {
 
 exports.handler = async (event, context, callback) => {
   let { trigger_id, payload } = getDataFromSlackRequest(event);
-  payload = JSON.parse(payload);
+  payload = payload && JSON.parse(payload);
 
   if (!payload) {
     // Modal requested, show it
