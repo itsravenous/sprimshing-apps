@@ -22,8 +22,8 @@ const openModal = async ({ trigger_id }) => {
     },
     body: JSON.stringify({
       trigger_id,
-      callback_id: "inventory_add",
       view: {
+        callback_id: "inventory_add",
         type: "modal",
         submit: {
           type: "plain_text",
