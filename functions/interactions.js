@@ -4,21 +4,16 @@ const { getDataFromSlackRequest } = require("../utils");
 const { handler: ritunaHandler } = require("./rituna");
 const { handler: inventoryAddHandler } = require("./inventory-add");
 
-const RITUNA_CALLBACK_IDS = [
-  "from_vedich",
-  "to_vedich",
-  "from_vanlic",
-  "to_vanlic",
-  "from_breinish",
-  "to_breinish"
-];
+const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
 
 exports.handler = async (event, context, callback) => {
   let { text, payload } = getDataFromSlackRequest(event);
   payload = JSON.parse(payload);
   let handler;
 
+  console.log({ payload });
   if (payload.view && payload.view.callback_id === "inventory_add") {
+    console.log("handling via inventory add");
     handler = inventoryAddHandler;
   }
   if (
