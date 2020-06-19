@@ -16,6 +16,11 @@ exports.handler = async (event, context, callback) => {
   let itemNameAndDetail = item.join(" ").split("|");
 
   try {
+    var existingdata = await authFetchSheet({ auth, sheetId, sheetName});
+    if (existingdata.filter(x => x[0] == data[0])) 
+      throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
+  
+  
     await appendToSheet({
       serviceAccount,
       credentials,
@@ -32,7 +37,7 @@ exports.handler = async (event, context, callback) => {
     callback(null, {
       statusCode: 200,
       body:
-        "Sorry, failed to add that knowledge. Maybe that subject doesn't have a lore store yet?"
+        `Sorry, failed to add that knowledge. ${err.message}`
     });
   }
 };
