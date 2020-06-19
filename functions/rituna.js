@@ -97,9 +97,10 @@ exports.handler = async (event, context, callback) => {
   });
 
   if (payload) {
-    await fetch(payload.response_url, {
+    console.log('responding to menu item with', response)
+    const res = await fetch(payload.response_url, {
       method: "post",
-      body: response,
+      body: JSON.stringify({ text: response }),
       response_type: "ephemeral"
     });
     callback(null, 200); // Send acknowledgment response (see https://api.slack.com/interactivity/handling#acknowledgment_response)
