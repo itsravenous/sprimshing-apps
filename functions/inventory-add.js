@@ -2,8 +2,8 @@ const fetch = require("node-fetch");
 const {
   appendToSheet,
   fetchSheet,
-  getSpreadSheetRaw
-} = require("@itsravenous/google-sheets-private");
+  getSheetList
+} = require("../google_utils");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   INVENTORY_SHEET_ID: SHEET_ID,
@@ -17,12 +17,11 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 const openModal = async ({ trigger_id }) => {
-  const spreadSheet = await getSpreadSheetRaw({
+  const sheets = await getSheetList({
     serviceAccount,
     credentials,
     sheetId: SHEET_ID
   });
-  const sheets = spreadSheet.data.sheets.map(sheet => sheet.properties.title);
 
   const res = await fetch("https://slack.com/api/views.open", {
     method: "POST",

@@ -1,4 +1,4 @@
-const { fetchSheet } = require("@itsravenous/google-sheets-public");
+const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   INVENTORY_SHEET_ID: SHEET_ID,

@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { fetchSheet } = require("@itsravenous/google-sheets-public");
+const { fetchSheet } = require("../google-utils");
 const { RITUNA_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
 const { getDataFromSlackRequest } = require("../utils");
 

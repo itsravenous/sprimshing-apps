@@ -1,4 +1,4 @@
-const { appendToSheet } = require("@itsravenous/google-sheets-private");
+const { appendToSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   RITUNA_SHEET_ID: SHEET_ID,

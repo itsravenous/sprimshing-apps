@@ -1,5 +1,5 @@
-const { appendToSheet } = require("@itsravenous/google-sheets-private");
-const { fetchSheet } = require("@itsravenous/google-sheets-private");
+const { appendToSheet } = require("../google-utils");
+const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   KNOWLEDGE_SHEET_ID: SHEET_ID,

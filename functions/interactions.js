@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { fetchSheet } = require("@itsravenous/google-sheets-public");
+const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
 const { handler: ritunaHandler } = require("./rituna");
 const { handler: inventoryAddHandler } = require("./inventory-add");
