@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "@itsravenous/google-sheets-private": "^1.1.0",
     "@itsravenous/google-sheets-public": "^2.0.0",
     "dotenv": "^8.2.0",
     "node-fetch": "^2.6.0"
