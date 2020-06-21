@@ -113,7 +113,7 @@ const openPlayerModal = async ({ trigger_id }) => {
     body: JSON.stringify({
       trigger_id,
       view: {
-        callback_id: "inventory_add",
+        callback_id: "inventory_add/select_player",
         type: "modal",
         submit: {
           type: "plain_text",
@@ -184,15 +184,58 @@ exports.handler = async (event, context, callback) => {
 
   if (!payload) {
     // Modal requested, show it
-    openModal({ trigger_id });
+    openPlayerModal({ trigger_id });
     callback(null, {
       statusCode: 200,
       body: "open modal"
     });
-  } else if (payload.type === "view_submission") {
-    // Modal submitted, add the item
+  } else if (
+    payload.type === "view_submission" &&
+    callback_id === "inventory_add/select_player"
+  ) {
+    // Player modal submitted, update modal to show vessels and item field
     const values = payload.view.state.values;
     const player = values.player.player.selected_option.value;
+    const inventorySheet = await fetchSheet({
+      serviceAccount,
+      credentials,
+      sheetId: SHEET_ID,
+      sheetName: player
+    });
+
+    const vessels = inventorySheet.values[0];
+
+    console.log("got vessels", vessels);
+
+    callback(null, {
+      statusCode: 200,
+      body: {
+        response_action: "update",
+        view: {
+          callback_id: "inventory_add/add_item",
+          type: "modal",
+          title: {
+            type: "plain_text",
+            text: "Updated title"
+          },
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "plain_text",
+                text: vessels.join()
+              }
+            }
+          ]
+        }
+      }
+    });
+  } else if (
+    payload.type === "view_submission" &&
+    callback_id === "inventory_add/add_item"
+  ) {
+    // Item modal submitted, add the item
+    const values = payload.view.state.values;
     const item = values.item.item.value;
     console.log({ item });
     addItem(player, item);
