@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { appendToSheet, fetchSheet, getSheetList } = require("../google_utils");
+const { appendToSheet, fetchSheet, getSheetList } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
 const {
   INVENTORY_SHEET_ID: SHEET_ID,
