@@ -75,7 +75,7 @@ const openPlayerModal = async ({ player, trigger_id }) => {
               type: "static_select",
               placeholder: {
                 type: "plain_text",
-                text: "Select player",
+                text: "Select vessel",
                 emoji: true
               },
               options: vessels.map(vessel => ({
