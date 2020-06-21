@@ -103,7 +103,7 @@ exports.handler = async (event, context, callback) => {
     console.log("opening player modal");
     openPlayerModal({ trigger_id });
     console.log("reached callback");
-    callback(null, {
+    return callback(null, {
       statusCode: 200,
       body: "open modal"
     });
