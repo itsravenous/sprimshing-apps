@@ -13,73 +13,97 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 const openPlayerModal = async ({ trigger_id }) => {
+  const time0 = new Date().getMilliseconds();
   const sheets = await getSheetList({
     serviceAccount,
     credentials,
     sheetId: SHEET_ID
   });
-  console.log("player sheets", sheets);
+  console.log("sheets fetch took", new Date().getMilliseconds() - time0, "ms");
+  //const sheets = ["tom", "bob", "taylon"];
+  //const sheets = [
+  //"sprimshing",
+  //"Recepticals",
+  //"Milric",
+  //"leeholden",
+  //"danpker",
+  //"leeholdenold",
+  //"tylerrl97",
+  //"Otfred",
+  //"Sheet9",
+  //"Eydra",
+  //"Cat",
+  //"eplin",
+  //"qbman1011",
+  //"asa.forsell01",
+  //"warlordmorg",
+  //"vidya_stuff",
+  //"zoomafoom28"
+  //];
+  console.log("player sheets", sheets.join());
 
-  //const res = await fetch("https://slack.com/api/views.open", {
-  //method: "POST",
-  //headers: {
-  //"Content-Type": "application/json",
-  //Authorization: `Bearer ${SLACK_TOKEN}`
-  //},
-  //body: JSON.stringify({
-  //trigger_id,
-  //view: {
-  //callback_id: "inventory_add/select_player",
-  //type: "modal",
-  //submit: {
-  //type: "plain_text",
-  //text: "Submit",
-  //emoji: true
-  //},
-  //close: {
-  //type: "plain_text",
-  //text: "Cancel",
-  //emoji: true
-  //},
-  //title: {
-  //type: "plain_text",
-  //text: "Add item to inventory",
-  //emoji: true
-  //},
-  //blocks: [
-  //{
-  //type: "divider"
-  //},
-  //{
-  //type: "input",
-  //block_id: "player",
-  //label: {
-  //type: "plain_text",
-  //text: "To whose inventory do you wish to add an item?",
-  //emoji: true
-  //},
-  //element: {
-  //action_id: "player",
-  //type: "static_select",
-  //placeholder: {
-  //type: "plain_text",
-  //text: "Select player",
-  //emoji: true
-  //},
-  //options: sheets.map(sheet => ({
-  //text: {
-  //type: "plain_text",
-  //text: sheet,
-  //emoji: true
-  //},
-  //value: sheet
-  //}))
-  //}
-  //}
-  //]
-  //}
-  //})
-  //});
+  const res = await fetch("https://slack.com/api/views.open", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SLACK_TOKEN}`
+    },
+    body: JSON.stringify({
+      trigger_id,
+      view: {
+        callback_id: "inventory_add/select_player",
+        type: "modal",
+        submit: {
+          type: "plain_text",
+          text: "Submit",
+          emoji: true
+        },
+        close: {
+          type: "plain_text",
+          text: "Cancel",
+          emoji: true
+        },
+        title: {
+          type: "plain_text",
+          text: "Add item to inventory",
+          emoji: true
+        },
+        blocks: [
+          {
+            type: "divider"
+          },
+          {
+            type: "input",
+            block_id: "player",
+            label: {
+              type: "plain_text",
+              text: "To whose inventory do you wish to add an item?",
+              emoji: true
+            },
+            element: {
+              action_id: "player",
+              type: "static_select",
+              placeholder: {
+                type: "plain_text",
+                text: "Select player",
+                emoji: true
+              },
+              options: sheets.map(sheet => ({
+                text: {
+                  type: "plain_text",
+                  text: sheet,
+                  emoji: true
+                },
+                value: sheet
+              }))
+            }
+          }
+        ]
+      }
+    })
+  });
+
+  console.log(await res.json());
 };
 
 const addItem = async (player, item) => {
