@@ -13,34 +13,7 @@ const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
 const credentials = JSON.parse(GOOGLE_CREDENTIALS);
 
 const openPlayerModal = async ({ trigger_id }) => {
-  const time0 = new Date().getMilliseconds();
-  const sheets = await getSheetList({
-    serviceAccount,
-    credentials,
-    sheetId: SHEET_ID
-  });
-  console.log("sheets fetch took", new Date().getMilliseconds() - time0, "ms");
-  //const sheets = ["tom", "bob", "taylon"];
-  //const sheets = [
-  //"sprimshing",
-  //"Recepticals",
-  //"Milric",
-  //"leeholden",
-  //"danpker",
-  //"leeholdenold",
-  //"tylerrl97",
-  //"Otfred",
-  //"Sheet9",
-  //"Eydra",
-  //"Cat",
-  //"eplin",
-  //"qbman1011",
-  //"asa.forsell01",
-  //"warlordmorg",
-  //"vidya_stuff",
-  //"zoomafoom28"
-  //];
-  console.log("player sheets", sheets.join());
+  const sheets = ["Player 1", "Player 2"];
 
   const res = await fetch("https://slack.com/api/views.open", {
     method: "POST",
@@ -106,12 +79,13 @@ const openPlayerModal = async ({ trigger_id }) => {
   console.log(await res.json());
 };
 
-const addItem = async (player, item) => {
+const addItem = async ({ player, vessel, item }) => {
   const res = await appendToSheet({
     serviceAccount,
     credentials,
     sheetId: SHEET_ID,
     sheetName: player,
+    insertAt: "B13",
     data: [item]
   });
 
@@ -122,6 +96,7 @@ exports.handler = async (event, context, callback) => {
   let { trigger_id, payload } = getDataFromSlackRequest(event);
   payload = payload && JSON.parse(payload);
 
+  console.log("called me", payload && payload.view.callback_id);
   if (!payload) {
     // Modal requested, show it
     console.log("opening player modal");
@@ -133,69 +108,96 @@ exports.handler = async (event, context, callback) => {
     });
   } else if (
     payload.type === "view_submission" &&
-    callback_id === "inventory_add/select_player"
+    payload.view.callback_id === "inventory_add/select_player"
   ) {
     // Player modal submitted, update modal to show vessels and item field
     const values = payload.view.state.values;
     const player = values.player.player.selected_option.value;
-    const inventorySheet = await fetchSheet({
-      serviceAccount,
-      credentials,
-      sheetId: SHEET_ID,
-      sheetName: player
-    });
+    const vessels = ["Attire", "Body"];
 
-    const vessels = inventorySheet.values[0];
-
-    console.log("got vessels", vessels);
-
-    callback(null, {
-      statusCode: 200,
-      body: {
-        response_action: "update",
+    const res = await fetch("https://slack.com/api/views.push", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SLACK_TOKEN}`
+      },
+      body: JSON.stringify({
+        trigger_id: payload.trigger_id,
         view: {
-          callback_id: "inventory_add/add_item",
           type: "modal",
+          callback_id: "inventory_add/add_item",
           title: {
             type: "plain_text",
-            text: "Updated title"
+            text: "Add inventory item"
+          },
+          submit: {
+            type: "plain_text",
+            text: "Add"
           },
           blocks: [
             {
-              type: "section",
-              text: {
+              type: "input",
+              block_id: "vessel",
+              label: {
                 type: "plain_text",
-                text: vessels.join()
+                text: `To which of ${player}'s vessels do you wish to add an item?`,
+                emoji: true
+              },
+              element: {
+                action_id: "vessel",
+                type: "static_select",
+                placeholder: {
+                  type: "plain_text",
+                  text: "Select vessel",
+                  emoji: true
+                },
+                options: vessels.map(vessel => ({
+                  text: {
+                    type: "plain_text",
+                    text: vessel,
+                    emoji: true
+                  },
+                  value: `${player}::${vessel}`
+                }))
+              }
+            },
+            {
+              type: "input",
+              block_id: "item",
+              label: {
+                type: "plain_text",
+                text: "Item description"
+              },
+              element: {
+                type: "plain_text_input",
+                action_id: "item"
               }
             }
           ]
         }
-      }
+      })
     });
+    //console.log("slack says", await res.json());
+
+    //callback(null, {
+    //statusCode: 200,
+    //body: ""
+    //});
   } else if (
     payload.type === "view_submission" &&
-    callback_id === "inventory_add/add_item"
+    payload.view.callback_id === "inventory_add/add_item"
   ) {
     // Item modal submitted, add the item
     const values = payload.view.state.values;
     const item = values.item.item.value;
-    console.log({ item });
-    addItem(player, item);
+    const [player, vessel] = values.vessel.vessel.selected_option.value.split(
+      "::"
+    );
+    console.log("adding", { player, vessel, item });
+    addItem({ player, vessel, item });
     callback(null, {
       statusCode: 200,
       body: "Success!"
     });
   }
-  //try {
-  //callback(null, {
-  //statusCode: 200,
-  //body: `Successfully added knowledge about \`${itemNameAndDetail[0]}\` to lore store \`${sheetName}\``
-  //});
-  //} catch (err) {
-  //console.error({ err });
-  //callback(null, {
-  //statusCode: 200,
-  //body: `Sorry, failed to add that knowledge. ${err.message}`
-  //});
-  //}
 };
