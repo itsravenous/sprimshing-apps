@@ -6,16 +6,13 @@ const {
   GOOGLE_CREDENTIALS
 } = process.env;
 
-const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-const credentials = JSON.parse(GOOGLE_CREDENTIALS);
-
 const getInventory = async character => {
   try {
     const sheet = await fetchSheet({
       sheetId: SHEET_ID,
       tabName: character.toLowerCase(),
-      serviceAccount,
-      credentials
+      serviceAccount: JSON.parse(GOOGLE_SERVICE_ACCOUNT),
+      credentials: JSON.parse(GOOGLE_CREDENTIALS)
     });
     const rows = sheet.values;
     if (!rows) throw "Sheet not found";
