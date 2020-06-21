@@ -5,6 +5,7 @@
   "dependencies": {
     "@itsravenous/google-sheets-public": "^2.0.0",
     "dotenv": "^8.2.0",
+    "googleapis": "^52.1.0",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {},
