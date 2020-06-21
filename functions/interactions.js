@@ -20,8 +20,7 @@ exports.handler = async (event, context, callback) => {
   payload = JSON.parse(payload);
   let handler;
 
-  console.log("interaction", payload);
-  if (payload.view && payload.view.callback_id === "inventory_add") {
+  if (payload.view && payload.view.callback_id.startsWith("inventory_add")) {
     console.log("handling via inventory add");
     handler = inventoryAddHandler;
   }
