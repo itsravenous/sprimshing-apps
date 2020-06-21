@@ -8,13 +8,12 @@ const {
 
 const getInventory = async character => {
   try {
-    const sheet = await fetchSheet({
+    const rows = await fetchSheet({
       sheetId: SHEET_ID,
-      tabName: character.toLowerCase(),
+      sheetName: character.toLowerCase(),
       serviceAccount: JSON.parse(GOOGLE_SERVICE_ACCOUNT),
       credentials: JSON.parse(GOOGLE_CREDENTIALS)
     });
-    const rows = sheet.values;
     if (!rows) throw "Sheet not found";
     const receptacles = rows[0];
     const items = receptacles.reduce((acc, receptacle, index) => {
