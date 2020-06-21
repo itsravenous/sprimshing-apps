@@ -20,66 +20,66 @@ const openPlayerModal = async ({ trigger_id }) => {
   });
   console.log("player sheets", sheets);
 
-  const res = await fetch("https://slack.com/api/views.open", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${SLACK_TOKEN}`
-    },
-    body: JSON.stringify({
-      trigger_id,
-      view: {
-        callback_id: "inventory_add/select_player",
-        type: "modal",
-        submit: {
-          type: "plain_text",
-          text: "Submit",
-          emoji: true
-        },
-        close: {
-          type: "plain_text",
-          text: "Cancel",
-          emoji: true
-        },
-        title: {
-          type: "plain_text",
-          text: "Add item to inventory",
-          emoji: true
-        },
-        blocks: [
-          {
-            type: "divider"
-          },
-          {
-            type: "input",
-            block_id: "player",
-            label: {
-              type: "plain_text",
-              text: "To whose inventory do you wish to add an item?",
-              emoji: true
-            },
-            element: {
-              action_id: "player",
-              type: "static_select",
-              placeholder: {
-                type: "plain_text",
-                text: "Select player",
-                emoji: true
-              },
-              options: sheets.map(sheet => ({
-                text: {
-                  type: "plain_text",
-                  text: sheet,
-                  emoji: true
-                },
-                value: sheet
-              }))
-            }
-          }
-        ]
-      }
-    })
-  });
+  //const res = await fetch("https://slack.com/api/views.open", {
+  //method: "POST",
+  //headers: {
+  //"Content-Type": "application/json",
+  //Authorization: `Bearer ${SLACK_TOKEN}`
+  //},
+  //body: JSON.stringify({
+  //trigger_id,
+  //view: {
+  //callback_id: "inventory_add/select_player",
+  //type: "modal",
+  //submit: {
+  //type: "plain_text",
+  //text: "Submit",
+  //emoji: true
+  //},
+  //close: {
+  //type: "plain_text",
+  //text: "Cancel",
+  //emoji: true
+  //},
+  //title: {
+  //type: "plain_text",
+  //text: "Add item to inventory",
+  //emoji: true
+  //},
+  //blocks: [
+  //{
+  //type: "divider"
+  //},
+  //{
+  //type: "input",
+  //block_id: "player",
+  //label: {
+  //type: "plain_text",
+  //text: "To whose inventory do you wish to add an item?",
+  //emoji: true
+  //},
+  //element: {
+  //action_id: "player",
+  //type: "static_select",
+  //placeholder: {
+  //type: "plain_text",
+  //text: "Select player",
+  //emoji: true
+  //},
+  //options: sheets.map(sheet => ({
+  //text: {
+  //type: "plain_text",
+  //text: sheet,
+  //emoji: true
+  //},
+  //value: sheet
+  //}))
+  //}
+  //}
+  //]
+  //}
+  //})
+  //});
 };
 
 const addItem = async (player, item) => {
@@ -102,6 +102,7 @@ exports.handler = async (event, context, callback) => {
     // Modal requested, show it
     console.log("opening player modal");
     openPlayerModal({ trigger_id });
+    console.log("reached callback");
     callback(null, {
       statusCode: 200,
       body: "open modal"
