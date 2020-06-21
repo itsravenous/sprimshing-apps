@@ -5,7 +5,8 @@ const {
   INVENTORY_SHEET_ID: SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT,
   GOOGLE_CREDENTIALS,
-  SLACK_TOKEN
+  SLACK_TOKEN,
+  GM_USERNAME
 } = process.env;
 
 const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
@@ -118,7 +119,16 @@ const addItem = async ({ player, vessel, item }) => {
 };
 
 exports.handler = async (event, context, callback) => {
-  let { trigger_id, payload, text } = getDataFromSlackRequest(event);
+  let { trigger_id, payload, text, user_name } = getDataFromSlackRequest(event);
+
+  // Restrict use to GM user
+  if (user_name !== GM_USERNAME) {
+    return callback(null, {
+      statusCode: 200,
+      body: "Only the GM can use this command"
+    });
+  }
+
   payload = payload && JSON.parse(payload);
 
   console.log("called me", payload && payload.view.callback_id);
