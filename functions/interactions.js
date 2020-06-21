@@ -8,7 +8,7 @@ const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
 
 exports.handler = async (event, context, callback) => {
   let { text, payload } = getDataFromSlackRequest(event);
-  payload = JSON.parse(payload);
+  if (payload) payload = JSON.parse(payload);
   let handler;
 
   if (payload.view && payload.view.callback_id === "inventory_add") {

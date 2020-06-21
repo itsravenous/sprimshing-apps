@@ -182,6 +182,7 @@ exports.handler = async (event, context, callback) => {
   let { trigger_id, payload } = getDataFromSlackRequest(event);
   payload = payload && JSON.parse(payload);
 
+  console.log({ payload });
   if (!payload) {
     // Modal requested, show it
     openPlayerModal({ trigger_id });
