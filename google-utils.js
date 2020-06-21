@@ -1,6 +1,6 @@
 const { google } = require("googleapis");
 //const { sheets } = require("googleapis/build/src/apis/sheets");
-const sheets = google.sheets('v4');
+const sheets = google.sheets("v4");
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
 //create a temporary auth token using JWT, reading from the service account config
@@ -39,12 +39,12 @@ function authFetchSheet({ auth, sheetId, sheetName }) {
     });
 }
 
-function authAppendToSheet({ auth, sheetId, sheetName, data }) {
+function authAppendToSheet({ auth, sheetId, sheetName, insertAt, data }) {
   const sheets = google.sheets({ version: "v4", auth });
-
+  const range = insertAt ? `${sheetName}!${insertAt}` : sheetName;
   return sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
-    range: sheetName,
+    range,
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     resource: {
@@ -69,28 +69,25 @@ const appendToSheet = async ({
   credentials,
   sheetId,
   sheetName,
+  insertAt,
   data
 }) => {
   const auth = await authorize({ serviceAccount, credentials });
-  return authAppendToSheet({ auth, sheetId, sheetName, data });
+  return authAppendToSheet({ auth, sheetId, sheetName, insertAt, data });
 };
 
-const getSheetList = async ({
-  serviceAccount,
-  credentials,
-  sheetId
-}) => {
+const getSheetList = async ({ serviceAccount, credentials, sheetId }) => {
   const authClient = await authorize({ serviceAccount, credentials });
   const request = {
     spreadsheetId: sheetId,
     ranges: [],
     includeGridData: true,
-    auth: authClient,
+    auth: authClient
   };
 
   const response = (await sheets.spreadsheets.get(request)).data;
   return response.sheets.map(s => s.properties.title);
-}
+};
 
 const createSheet = async ({
   serviceAccount,
@@ -103,14 +100,16 @@ const createSheet = async ({
   const requestAdd = {
     spreadsheetId: sheetId,
     resource: {
-      requests: [{
-        "addSheet": {
-          "properties": { "title": sheetName }
+      requests: [
+        {
+          addSheet: {
+            properties: { title: sheetName }
+          }
         }
-      }]},
+      ]
+    },
     auth: authClient
   };
-
 
   try {
     const response = (await sheets.spreadsheets.batchUpdate(requestAdd)).data;
@@ -121,28 +120,31 @@ const createSheet = async ({
       const requestBold = {
         spreadsheetId: sheetId,
         resource: {
-          requests: [{
-            "repeatCell": {
-              "range": {
-                "sheetId": newSheetId,
-                "startRowIndex": 0,
-                "endRowIndex": 1
-              },
-              "cell": {
-                "userEnteredFormat": {
-                  "textFormat": {
-                    "bold": true
+          requests: [
+            {
+              repeatCell: {
+                range: {
+                  sheetId: newSheetId,
+                  startRowIndex: 0,
+                  endRowIndex: 1
+                },
+                cell: {
+                  userEnteredFormat: {
+                    textFormat: {
+                      bold: true
+                    }
                   }
-                }
-              },
-              "fields": "userEnteredFormat.textFormat.bold"
+                },
+                fields: "userEnteredFormat.textFormat.bold"
+              }
             }
-          }]
+          ]
         },
-        auth: authClient,
+        auth: authClient
       };
-      
-      const response2 = (await sheets.spreadsheets.batchUpdate(requestBold)).data;
+
+      const response2 = (await sheets.spreadsheets.batchUpdate(requestBold))
+        .data;
 
       await appendToSheet({
         serviceAccount,
@@ -157,8 +159,7 @@ const createSheet = async ({
   } catch (err) {
     return err.message;
   }
-}
-
+};
 
 exports.fetchSheet = fetchSheet;
 exports.appendToSheet = appendToSheet;
