@@ -7,7 +7,7 @@ const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
 exports.handler = async (event, context, callback) => {
   let { text, payload } = getDataFromSlackRequest(event);
   if (!payload) {
-    // Paylaod required, return error
+    // Payload required, return error
     return callback(null, {
       statusCode: 200,
       body:
