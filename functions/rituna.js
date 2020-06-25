@@ -5,7 +5,7 @@ const { getDataFromSlackRequest } = require("../utils");
 const escapeForRegex = s => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
 
 const fetchDictionary = async dictionaryName => {
-  const { values } = await fetchSheet({
+  const values = await fetchSheet({
     sheetId: SHEET_ID,
     sheetName: dictionaryName
   });
