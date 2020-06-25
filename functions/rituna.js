@@ -1,6 +1,5 @@
-const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
-const { RITUNA_SHEET_ID: SHEET_ID, GOOGLE_API_KEY } = process.env;
+const { RITUNA_SHEET_ID: SHEET_ID } = process.env;
 const { getDataFromSlackRequest } = require("../utils");
 
 const escapeForRegex = s => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
@@ -8,8 +7,7 @@ const escapeForRegex = s => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
 const fetchDictionary = async dictionaryName => {
   const { values } = await fetchSheet({
     sheetId: SHEET_ID,
-    tabName: dictionaryName,
-    apiKey: GOOGLE_API_KEY
+    tabName: dictionaryName
   });
   return (
     values
@@ -55,7 +53,6 @@ const translate = ({ dictionary, text, reverse }) => {
 exports.debug = async name => {
   console.log(`Hello ${name}`);
   console.log(`SHEET_ID: ${SHEET_ID}`);
-  console.log(`API_KEY: ${GOOGLE_API_KEY}`);
 };
 
 exports.debug2 = async () => {
@@ -97,7 +94,7 @@ exports.handler = async (event, context, callback) => {
   });
 
   if (payload) {
-    console.log('responding to menu item with', response)
+    console.log("responding to menu item with", response);
     const res = await fetch(payload.response_url, {
       method: "post",
       body: JSON.stringify({ text: response }),

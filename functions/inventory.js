@@ -1,18 +1,12 @@
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const {
-  INVENTORY_SHEET_ID: SHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT,
-  GOOGLE_CREDENTIALS
-} = process.env;
+const { INVENTORY_SHEET_ID: SHEET_ID } = process.env;
 
 const getInventory = async character => {
   try {
     const rows = await fetchSheet({
       sheetId: SHEET_ID,
-      sheetName: character.toLowerCase(),
-      serviceAccount: JSON.parse(GOOGLE_SERVICE_ACCOUNT),
-      credentials: JSON.parse(GOOGLE_CREDENTIALS)
+      sheetName: character.toLowerCase()
     });
     if (!rows) throw "Sheet not found";
     const receptacles = rows[0];

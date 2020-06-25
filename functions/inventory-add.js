@@ -1,21 +1,10 @@
 const fetch = require("node-fetch");
 const { appendToSheet, fetchSheet, getSheetList } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const {
-  INVENTORY_SHEET_ID: SHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT,
-  GOOGLE_CREDENTIALS,
-  SLACK_TOKEN,
-  GM_USERNAME
-} = process.env;
-
-const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-const credentials = JSON.parse(GOOGLE_CREDENTIALS);
+const { INVENTORY_SHEET_ID: SHEET_ID, SLACK_TOKEN, GM_USERNAME } = process.env;
 
 const openPlayerModal = async ({ player, trigger_id }) => {
   const inventory = await fetchSheet({
-    serviceAccount,
-    credentials,
     sheetId: SHEET_ID,
     sheetName: player
   });
@@ -100,8 +89,6 @@ const openPlayerModal = async ({ player, trigger_id }) => {
 const addItem = async ({ player, vessel, item }) => {
   // Get inventory to determine cell position to update at based on items in requested vessel
   const inventory = await fetchSheet({
-    serviceAccount,
-    credentials,
     sheetId: SHEET_ID,
     sheetName: player
   });
@@ -110,8 +97,6 @@ const addItem = async ({ player, vessel, item }) => {
   const rowToInsert = Array(vessels.length).fill("");
   rowToInsert[vesselIndex] = item;
   const res = await appendToSheet({
-    serviceAccount,
-    credentials,
     sheetId: SHEET_ID,
     sheetName: player,
     data: rowToInsert

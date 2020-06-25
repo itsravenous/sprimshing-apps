@@ -1,22 +1,12 @@
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const {
-  KNOWLEDGE_SHEET_ID: SHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT,
-  GOOGLE_CREDENTIALS,
-  GOOGLE_API_KEY
-} = process.env;
-
-const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-const credentials = JSON.parse(GOOGLE_CREDENTIALS);
+const { KNOWLEDGE_SHEET_ID: SHEET_ID } = process.env;
 
 const fetchKnowledge = async sheetName => {
   try {
     const rows = await fetchSheet({
       sheetId: SHEET_ID,
-      sheetName,
-      serviceAccount,
-      credentials
+      sheetName
     });
     return (
       rows

@@ -1,15 +1,7 @@
 const { appendToSheet } = require("../google-utils");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const {
-  KNOWLEDGE_SHEET_ID: SHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT,
-  GOOGLE_CREDENTIALS,
-  GOOGLE_API_KEY
-} = process.env;
-
-const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-const credentials = JSON.parse(GOOGLE_CREDENTIALS);
+const { KNOWLEDGE_SHEET_ID: SHEET_ID } = process.env;
 
 exports.handler = async (event, context, callback) => {
   const { text } = getDataFromSlackRequest(event);
@@ -19,18 +11,13 @@ exports.handler = async (event, context, callback) => {
   try {
     const existingdata = await fetchSheet({
       sheetId: SHEET_ID,
-      sheetName,
-      serviceAccount,
-      credentials
+      sheetName
     });
 
-    if (existingdata.find(x => x[0] ==  itemNameAndDetail[0])) 
+    if (existingdata.find(x => x[0] == itemNameAndDetail[0]))
       throw `lore store \`${sheetName}\` already knows about \`${itemNameAndDetail[0]}\``;
-  
-  
+
     await appendToSheet({
-      serviceAccount,
-      credentials,
       sheetId: SHEET_ID,
       sheetName,
       data: itemNameAndDetail
@@ -43,8 +30,7 @@ exports.handler = async (event, context, callback) => {
     console.error({ err });
     callback(null, {
       statusCode: 200,
-      body:
-        `Sorry, failed to add that knowledge. ${err}`
+      body: `Sorry, failed to add that knowledge. ${err}`
     });
   }
 };

@@ -1,13 +1,6 @@
 const { appendToSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const {
-  RITUNA_SHEET_ID: SHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT,
-  GOOGLE_CREDENTIALS
-} = process.env;
-
-const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-const credentials = JSON.parse(GOOGLE_CREDENTIALS);
+const { RITUNA_SHEET_ID: SHEET_ID } = process.env;
 
 exports.handler = async (event, context, callback) => {
   const { text } = getDataFromSlackRequest(event);
@@ -16,8 +9,6 @@ exports.handler = async (event, context, callback) => {
 
   try {
     await appendToSheet({
-      serviceAccount,
-      credentials,
       sheetId: SHEET_ID,
       sheetName,
       data: itemNameAndDetail

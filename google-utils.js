@@ -1,7 +1,12 @@
 const { google } = require("googleapis");
-//const { sheets } = require("googleapis/build/src/apis/sheets");
 const sheets = google.sheets("v4");
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/spreadsheets",
+  "https://www.googleapis.com/auth/documents"
+];
+
+const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 
 //create a temporary auth token using JWT, reading from the service account config
 async function authorize({ serviceAccount, credentials }) {
@@ -54,24 +59,12 @@ function authAppendToSheet({ auth, sheetId, sheetName, insertAt, data }) {
   });
 }
 
-const fetchSheet = async ({
-  serviceAccount,
-  credentials,
-  sheetId,
-  sheetName
-}) => {
+const fetchSheet = async ({ sheetId, sheetName }) => {
   const auth = await authorize({ serviceAccount, credentials });
   return authFetchSheet({ auth, sheetId, sheetName });
 };
 
-const appendToSheet = async ({
-  serviceAccount,
-  credentials,
-  sheetId,
-  sheetName,
-  insertAt,
-  data
-}) => {
+const appendToSheet = async ({ sheetId, sheetName, insertAt, data }) => {
   const auth = await authorize({ serviceAccount, credentials });
   return authAppendToSheet({ auth, sheetId, sheetName, insertAt, data });
 };
@@ -89,13 +82,7 @@ const getSheetList = async ({ serviceAccount, credentials, sheetId }) => {
   return response.sheets.map(s => s.properties.title);
 };
 
-const createSheet = async ({
-  serviceAccount,
-  credentials,
-  sheetId,
-  sheetName,
-  headers
-}) => {
+const createSheet = async ({ sheetId, sheetName, headers }) => {
   const authClient = await authorize({ serviceAccount, credentials });
   const requestAdd = {
     spreadsheetId: sheetId,
@@ -161,7 +148,44 @@ const createSheet = async ({
   }
 };
 
-exports.fetchSheet = fetchSheet;
-exports.appendToSheet = appendToSheet;
-exports.getSheetList = getSheetList;
-exports.createSheet = createSheet;
+const getDocument = async ({ documentId }) => {
+  const auth = await authorize({ serviceAccount, credentials });
+  const docs = google.docs({ version: "v1", auth });
+  return docs.documents.get({
+    documentId
+  });
+};
+
+const appendToDocument = async ({ documentId, text }) => {
+  const auth = await authorize({ serviceAccount, credentials });
+  const docs = google.docs({ version: "v1", auth });
+  return docs.documents
+    .batchUpdate({
+      auth,
+      documentId,
+      requestBody: {
+        requests: [
+          {
+            insertText: {
+              location: {
+                index: 1
+              },
+              text
+            }
+          }
+        ]
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
+module.exports = {
+  fetchSheet,
+  appendToSheet,
+  getSheetList,
+  createSheet,
+  getDocument,
+  appendToDocument
+};
