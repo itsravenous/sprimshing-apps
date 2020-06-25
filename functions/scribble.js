@@ -3,7 +3,19 @@ const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
 const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID } = process.env;
 
-const main = async channel_id => {
+const main = async ({ channel_id }) => {
+  // Get channel name
+  const { channel } = await (
+    await fetch(
+      `https://slack.com/api/conversations.info?channel=${channel_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.SLACK_TOKEN}`
+        }
+      }
+    )
+  ).json();
+
   // Get all messages in channel
   let messages = await (
     await fetch(
@@ -41,9 +53,16 @@ const main = async channel_id => {
   }, {});
 
   // Replace user IDs with display names
-  let lines = messages
-    .map(message => `${userIdsToNames[message.user]}: ${message.text}`)
-    .join("\n");
+  let lines = [
+    channel.name,
+    "=============================",
+    ...messages.map(message => {
+      const date = new Date(message.ts * 1000);
+      return `${date.getFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} ${
+        userIdsToNames[message.user]
+      }: ${message.text}`;
+    })
+  ].join("\n");
   Object.keys(userIdsToNames).forEach(userId => {
     const re = new RegExp(`<@${userId}>`, "g");
     lines = lines.replace(re, userIdsToNames[userId]);
@@ -58,9 +77,9 @@ const main = async channel_id => {
 };
 
 exports.handler = async (event, context, callback) => {
-  const { channel_id } = getDataFromSlackRequest(event);
+  const slackData = getDataFromSlackRequest(event);
   const result = callback(null, {
     statusCode: 200,
-    body: await main(channel_id)
+    body: await main(slackData)
   });
 };
