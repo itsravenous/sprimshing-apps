@@ -29,7 +29,7 @@ const inventoryToText = inventory => {
   inventoryText = Object.entries(inventory).reduce(
     (acc, [receptacle, items]) => {
       acc += `*${receptacle}:*\n${items
-        .filter(x => x)
+        .filter(x => x && x.trim())
         .map(x => "- " + x)
         .join("\n")}\n\n`;
       return acc;
