@@ -43,8 +43,14 @@ const inventoryToText = inventory => {
 exports.getInventory = getInventory;
 exports.inventoryToText = inventoryToText;
 exports.handler = async (event, context, callback) => {
-  const { trigger_id, user_name } = getDataFromSlackRequest(event);
+  let { trigger_id, user_name, payload } = getDataFromSlackRequest(event);
 
+  // If coming from shortcut, user_name not included in top level data, parse out user_name from user in payload
+  if (payload) {
+    payload = JSON.parse(payload);
+    user_name = payload.user.username;
+    trigger_id = payload.trigger_id;
+  }
   console.log("===================================");
   console.log("Getting inventory for", user_name);
   console.log("===================================");
