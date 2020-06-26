@@ -28,7 +28,10 @@ const getInventory = async character => {
 const inventoryToText = inventory => {
   inventoryText = Object.entries(inventory).reduce(
     (acc, [receptacle, items]) => {
-      acc += `*${receptacle}:*\n${items.join("\n")}\n\n`;
+      acc += `*${receptacle}:*\n${items
+        .filter(x => x)
+        .map(x => "- " + x)
+        .join("\n")}\n\n`;
       return acc;
     },
     ""
