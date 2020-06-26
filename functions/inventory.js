@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
-const { getDataFromSlackRequest } = require("../utils");
+const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
 const { INVENTORY_SHEET_ID: SHEET_ID, SLACK_TOKEN } = process.env;
 
 const getInventory = async character => {
@@ -56,32 +56,10 @@ exports.handler = async (event, context, callback) => {
   console.log("===================================");
 
   const inventoryText = inventoryToText(await getInventory(user_name));
-  const modalRes = await fetch("https://slack.com/api/views.open", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${SLACK_TOKEN}`
-    },
-    body: JSON.stringify({
-      trigger_id,
-      view: {
-        type: "modal",
-        title: {
-          type: "plain_text",
-          text: `Inventory for ${user_name}`,
-          emoji: true
-        },
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: inventoryText
-            }
-          }
-        ]
-      }
-    })
+  await openSimpleModal({
+    title: `Inventory for ${user_name}`,
+    text: inventoryText,
+    trigger_id
   });
   callback(null, {
     statusCode: 200,

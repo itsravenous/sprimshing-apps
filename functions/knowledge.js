@@ -1,5 +1,6 @@
+const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
-const { getDataFromSlackRequest } = require("../utils");
+const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
 const { KNOWLEDGE_SHEET_ID: SHEET_ID } = process.env;
 
 const fetchKnowledge = async sheetName => {
@@ -42,7 +43,7 @@ const detailKnowledge = async (sheetname, itemname) => {
   try {
     knowledge = await fetchKnowledge(sheetname);
   } catch {
-    return "Nothing is known about the subject `" + sheetname + "`";
+    return "Nothing is known about the subject `" + sheetname + "`.";
   }
 
   let header = knowledge[0];
@@ -56,7 +57,7 @@ const detailKnowledge = async (sheetname, itemname) => {
       itemname +
       "` (at least not in the topic of `" +
       sheetname +
-      "`)"
+      "`). Perhaps you could add it using the `/knowledge-add` command."
     );
   }
   var r = "";
@@ -68,7 +69,7 @@ const detailKnowledge = async (sheetname, itemname) => {
 };
 
 exports.handler = async (event, context, callback) => {
-  const { text } = getDataFromSlackRequest(event);
+  const { text, trigger_id } = getDataFromSlackRequest(event);
   let [dictionaryName, ...entryName] = text.split(" ");
   entryName = entryName.join(" ");
   let response;
@@ -78,8 +79,14 @@ exports.handler = async (event, context, callback) => {
     response = await listKnowledge(dictionaryName);
   }
 
+  await openSimpleModal({
+    title: `Knowledge`,
+    text: response,
+    trigger_id
+  });
+
   callback(null, {
     statusCode: 200,
-    body: response
+    body: ""
   });
 };
