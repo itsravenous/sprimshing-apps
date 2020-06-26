@@ -1,6 +1,7 @@
+const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest } = require("../utils");
-const { INVENTORY_SHEET_ID: SHEET_ID } = process.env;
+const { INVENTORY_SHEET_ID: SHEET_ID, SLACK_TOKEN } = process.env;
 
 const getInventory = async character => {
   try {
@@ -39,15 +40,42 @@ const inventoryToText = inventory => {
 exports.getInventory = getInventory;
 exports.inventoryToText = inventoryToText;
 exports.handler = async (event, context, callback) => {
-  const { user_name } = getDataFromSlackRequest(event);
+  const { trigger_id, user_name } = getDataFromSlackRequest(event);
 
   console.log("===================================");
   console.log("Getting inventory for", user_name);
   console.log("===================================");
 
   const inventoryText = inventoryToText(await getInventory(user_name));
+  const modalRes = await fetch("https://slack.com/api/views.open", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SLACK_TOKEN}`
+    },
+    body: JSON.stringify({
+      trigger_id,
+      view: {
+        type: "modal",
+        title: {
+          type: "plain_text",
+          text: `Inventory for ${user_name}`,
+          emoji: true
+        },
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: inventoryText
+            }
+          }
+        ]
+      }
+    })
+  });
   callback(null, {
     statusCode: 200,
-    body: `*Inventory for ${user_name}*\n\n${inventoryText}`
+    body: ""
   });
 };
