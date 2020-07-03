@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { SLACK_TOKEN } = process.env;
 
-module.exports.getDataFromSlackRequest = event =>
+getDataFromSlackRequest = event =>
   JSON.parse(
     '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
     (key, value) =>
@@ -12,7 +12,22 @@ module.exports.getDataFromSlackRequest = event =>
             .trim()
   );
 
-module.exports.openSimpleModal = async ({ title, text, trigger_id }) =>
+openSimpleModal = async ({ title, text, trigger_id }) =>
+  openModal({
+    title,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text
+        }
+      }
+    ],
+    trigger_id
+  });
+
+openModal = async ({ title, blocks, trigger_id }) =>
   fetch("https://slack.com/api/views.open", {
     method: "POST",
     headers: {
@@ -28,15 +43,13 @@ module.exports.openSimpleModal = async ({ title, text, trigger_id }) =>
           text: title,
           emoji: true
         },
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text
-            }
-          }
-        ]
+        blocks
       }
     })
   });
+
+module.exports = {
+  getDataFromSlackRequest,
+  openSimpleModal,
+  openModal
+};
