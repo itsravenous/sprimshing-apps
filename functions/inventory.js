@@ -9,18 +9,38 @@ const getInventory = async character => {
       sheetId: SHEET_ID,
       sheetName: character.toLowerCase()
     });
-    if (!rows) throw "Sheet not found";
-    const receptacles = rows[0];
-    const items = receptacles.reduce((acc, receptacle, index) => {
-      acc[receptacle] = [
-        ...(acc[receptacle] || []),
-        ...rows.slice(1).map(row => row[index])
+    if (!rows)
+      throw new Error(
+        "Inventory sheet missing - please contact the Games Master"
+      );
+
+    const headers = rows[0];
+    const itemIndex = headers.indexOf("Item");
+    const vesselIndex = headers.indexOf("Vessel");
+    const imageIndex = headers.indexOf("Image");
+    if (itemIndex === -1 || vesselIndex === -1 || imageIndex === -1) {
+      throw new Error(
+        "Inventory sheet malformatted - please contact the Games Master"
+      );
+    }
+
+    const itemsByVessel = rows.slice(1).reduce((acc, row) => {
+      const item = row[itemIndex];
+      const vessel = row[vesselIndex];
+      const image = row[imageIndex];
+      acc[vessel] = acc[vessel] || [];
+      acc[vessel] = [
+        ...acc[vessel],
+        {
+          item,
+          image
+        }
       ];
       return acc;
     }, {});
-    return items;
+    return itemsByVessel;
   } catch (e) {
-    console.error(e);
+    console.error("ERROR================\n", e);
     return ["No items"];
   }
 };
@@ -28,16 +48,58 @@ const getInventory = async character => {
 const inventoryToText = inventory => {
   inventoryText = Object.entries(inventory).reduce(
     (acc, [receptacle, items]) => {
-      acc += `*${receptacle}:*\n${items
-        .filter(x => x && x.trim())
-        .map(x => "- " + x)
-        .join("\n")}\n\n`;
+      const itemsText = items
+        .map(item => `${item.item}, ![](${item.image})`)
+        .join("\n");
+      acc += `*${receptacle}:*\n${itemsText}\n\n`;
       return acc;
     },
     ""
   );
 
   return inventoryText;
+};
+
+const inventoryToBlocks = inventory => {
+  return Object.entries(inventory).reduce((acc, [vessel, items]) => {
+    return [
+      ...acc,
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${vessel}*`
+        }
+      },
+      ...items.map(item => {
+        let elements = [{ type: "mrkdwn", text: item.item }];
+        if (item.image) {
+          elements = [
+            ...elements,
+            {
+              type: "mrkdwn",
+              text: " "
+            },
+            {
+              type: "image",
+              image_url: item.image,
+              alt_text: item.item
+            },
+            {
+              type: "mrkdwn",
+              text: " "
+            },
+            { type: "mrkdwn", text: `<${item.image}|Examine>` }
+          ];
+        }
+
+        return {
+          type: "context",
+          elements
+        };
+      })
+    ];
+  }, []);
 };
 
 exports.getInventory = getInventory;
@@ -54,11 +116,11 @@ exports.handler = async (event, context, callback) => {
   console.log("===================================");
   console.log("Getting inventory for", user_name);
   console.log("===================================");
-
-  const inventoryText = inventoryToText(await getInventory(user_name));
-  await openSimpleModal({
+  const inventory = await getInventory(user_name);
+  const inventoryBlocks = inventoryToBlocks(inventory);
+  const modalRes = await openModal({
     title: `Inventory for ${user_name}`,
-    text: inventoryText,
+    blocks: inventoryBlocks,
     trigger_id
   });
   callback(null, {
