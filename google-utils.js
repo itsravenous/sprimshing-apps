@@ -196,3 +196,13 @@ module.exports = {
   getDocument,
   appendToDocument
 };
+
+async function go() {
+  const sheet = await fetchSheet({
+    sheetId: "1kLziCv8F3EHIOjJFGSP4KzoCQAhqzmQBkvR9SJLyW5M",
+    sheetName: "milric"
+  });
+  console.log(sheet);
+}
+
+go();
