@@ -1,7 +1,13 @@
 const fetch = require("node-fetch");
 const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
-const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID } = process.env;
+const {
+  SLACK_TOKEN,
+  SCRIBBLE_DOCUMENT_ID,
+  GM_GOOGLE_SERVICE_ACCOUNT,
+  GM_GOOGLE_CREDENTIALS,
+  GM_USERNAME
+} = process.env;
 
 const main = async ({ channel_id }) => {
   // Get channel name
@@ -71,14 +77,22 @@ const main = async ({ channel_id }) => {
   // Send text to google doc
   await appendToDocument({
     documentId: SCRIBBLE_DOCUMENT_ID,
-    text: lines
+    text: lines,
+    serviceAccount: GM_GOOGLE_SERVICE_ACCOUNT,
+    credentials: GM_GOOGLE_CREDENTIALS
   });
   return `This morsel of history has arrived at the scribbleshop for posteritisation ✉️`;
 };
 
 exports.handler = async (event, context, callback) => {
   const slackData = getDataFromSlackRequest(event);
-  const result = callback(null, {
+  //if (slackData.user_name !== GM_USERNAME) {
+  //return callback(null, {
+  //statusCode: 200,
+  //body: "Only the GM can use this command"
+  //});
+  //}
+  callback(null, {
     statusCode: 200,
     body: await main(slackData)
   });
