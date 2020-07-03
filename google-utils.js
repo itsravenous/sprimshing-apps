@@ -1,4 +1,5 @@
 const { google } = require("googleapis");
+const { auth } = require("google-auth-library");
 const sheets = google.sheets("v4");
 const SCOPES = [
   "https://www.googleapis.com/auth/spreadsheets",
@@ -6,31 +7,13 @@ const SCOPES = [
 ];
 
 const defaultServiceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-const defaultCredentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 
-//create a temporary auth token using JWT, reading from the service account config
-async function authorize({ serviceAccount, credentials }) {
-  const { client_secret, client_id } = credentials.installed;
-
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    "postmessage"
-  );
-
-  const jwt = new google.auth.JWT(
-    serviceAccount.client_email,
-    null,
-    serviceAccount.private_key,
-    SCOPES
-  );
-
-  const tokens = await jwt.authorize();
-  oAuth2Client.setCredentials({
-    access_token: tokens.access_token
-  });
-  return oAuth2Client;
-}
+// Create auth from service account
+const authorize = async ({ serviceAccount }) => {
+  const client = auth.fromJSON(serviceAccount);
+  client.scopes = SCOPES;
+  return client;
+};
 
 function authFetchSheet({ auth, sheetId, sheetName }) {
   const sheets = google.sheets({ version: "v4", auth });
@@ -59,27 +42,31 @@ function authAppendToSheet({ auth, sheetId, sheetName, insertAt, data }) {
   });
 }
 
-const fetchSheet = async ({ sheetId, sheetName 
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+const fetchSheet = async ({
+  sheetId,
+  sheetName,
+  serviceAccount = defaultServiceAccount
 }) => {
-  const auth = await authorize({ serviceAccount, credentials });
+  const auth = await authorize({ serviceAccount });
   return authFetchSheet({ auth, sheetId, sheetName });
 };
 
-const appendToSheet = async ({ sheetId, sheetName, insertAt, data 
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+const appendToSheet = async ({
+  sheetId,
+  sheetName,
+  insertAt,
+  data,
+  serviceAccount = defaultServiceAccount
 }) => {
-  const auth = await authorize({ serviceAccount, credentials });
+  const auth = await authorize({ serviceAccount });
   return authAppendToSheet({ auth, sheetId, sheetName, insertAt, data });
 };
 
-const getSheetList = async ({  sheetId
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+const getSheetList = async ({
+  sheetId,
+  serviceAccount = defaultServiceAccount
 }) => {
-  const authClient = await authorize({ serviceAccount, credentials });
+  const authClient = await authorize({ serviceAccount });
   const request = {
     spreadsheetId: sheetId,
     ranges: [],
@@ -91,11 +78,13 @@ const getSheetList = async ({  sheetId
   return response.sheets.map(s => s.properties.title);
 };
 
-const createSheet = async ({ sheetId, sheetName, headers 
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+const createSheet = async ({
+  sheetId,
+  sheetName,
+  headers,
+  serviceAccount = defaultServiceAccount
 }) => {
-  const authClient = await authorize({ serviceAccount, credentials });
+  const authClient = await authorize({ serviceAccount });
   const requestAdd = {
     spreadsheetId: sheetId,
     resource: {
@@ -147,7 +136,6 @@ const createSheet = async ({ sheetId, sheetName, headers
 
       await appendToSheet({
         serviceAccount,
-        credentials,
         sheetId,
         sheetName,
         data: headers
@@ -160,11 +148,11 @@ const createSheet = async ({ sheetId, sheetName, headers
   }
 };
 
-const getDocument = async ({ documentId,
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+const getDocument = async ({
+  documentId,
+  serviceAccount = defaultServiceAccount
 }) => {
-  const auth = await authorize({ serviceAccount, credentials });
+  const auth = await authorize({ serviceAccount });
   const docs = google.docs({ version: "v1", auth });
   return docs.documents.get({
     documentId
@@ -174,10 +162,9 @@ const getDocument = async ({ documentId,
 const appendToDocument = async ({
   documentId,
   text,
-  serviceAccount = defaultServiceAccount,
-  credentials = defaultCredentials
+  serviceAccount = defaultServiceAccount
 }) => {
-  const auth = await authorize({ serviceAccount, credentials });
+  const auth = await authorize({ serviceAccount });
   const docs = google.docs({ version: "v1", auth });
   return docs.documents
     .batchUpdate({
