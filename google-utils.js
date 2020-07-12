@@ -3,7 +3,7 @@ const { auth } = require("google-auth-library");
 const sheets = google.sheets("v4");
 const SCOPES = [
   "https://www.googleapis.com/auth/spreadsheets",
-  "https://www.googleapis.com/auth/documents"
+  "https://www.googleapis.com/auth/documents",
 ];
 
 const defaultServiceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
@@ -15,14 +15,14 @@ const authorize = async ({ serviceAccount }) => {
   return client;
 };
 
-function authFetchSheet({ auth, sheetId, sheetName }) {
+function authFetchSheet({ auth, sheetId, sheetName = "Sheet1" }) {
   const sheets = google.sheets({ version: "v4", auth });
   return sheets.spreadsheets.values
     .get({
       spreadsheetId: sheetId,
-      range: sheetName
+      range: sheetName,
     })
-    .then(res => {
+    .then((res) => {
       return res.data.values;
     });
 }
@@ -36,16 +36,16 @@ function authAppendToSheet({ auth, sheetId, sheetName, insertAt, data }) {
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     resource: {
-      values: [data]
+      values: [data],
     },
-    auth: auth
+    auth: auth,
   });
 }
 
 const fetchSheet = async ({
   sheetId,
   sheetName,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const auth = await authorize({ serviceAccount });
   return authFetchSheet({ auth, sheetId, sheetName });
@@ -56,7 +56,7 @@ const appendToSheet = async ({
   sheetName,
   insertAt,
   data,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const auth = await authorize({ serviceAccount });
   return authAppendToSheet({ auth, sheetId, sheetName, insertAt, data });
@@ -64,25 +64,25 @@ const appendToSheet = async ({
 
 const getSheetList = async ({
   sheetId,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const authClient = await authorize({ serviceAccount });
   const request = {
     spreadsheetId: sheetId,
     ranges: [],
     includeGridData: true,
-    auth: authClient
+    auth: authClient,
   };
 
   const response = (await sheets.spreadsheets.get(request)).data;
-  return response.sheets.map(s => s.properties.title);
+  return response.sheets.map((s) => s.properties.title);
 };
 
 const createSheet = async ({
   sheetId,
   sheetName,
   headers,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const authClient = await authorize({ serviceAccount });
   const requestAdd = {
@@ -91,12 +91,12 @@ const createSheet = async ({
       requests: [
         {
           addSheet: {
-            properties: { title: sheetName }
-          }
-        }
-      ]
+            properties: { title: sheetName },
+          },
+        },
+      ],
     },
-    auth: authClient
+    auth: authClient,
   };
 
   try {
@@ -114,21 +114,21 @@ const createSheet = async ({
                 range: {
                   sheetId: newSheetId,
                   startRowIndex: 0,
-                  endRowIndex: 1
+                  endRowIndex: 1,
                 },
                 cell: {
                   userEnteredFormat: {
                     textFormat: {
-                      bold: true
-                    }
-                  }
+                      bold: true,
+                    },
+                  },
                 },
-                fields: "userEnteredFormat.textFormat.bold"
-              }
-            }
-          ]
+                fields: "userEnteredFormat.textFormat.bold",
+              },
+            },
+          ],
         },
-        auth: authClient
+        auth: authClient,
       };
 
       const response2 = (await sheets.spreadsheets.batchUpdate(requestBold))
@@ -138,7 +138,7 @@ const createSheet = async ({
         serviceAccount,
         sheetId,
         sheetName,
-        data: headers
+        data: headers,
       });
     }
 
@@ -150,19 +150,19 @@ const createSheet = async ({
 
 const getDocument = async ({
   documentId,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const auth = await authorize({ serviceAccount });
   const docs = google.docs({ version: "v1", auth });
   return docs.documents.get({
-    documentId
+    documentId,
   });
 };
 
 const appendToDocument = async ({
   documentId,
   text,
-  serviceAccount = defaultServiceAccount
+  serviceAccount = defaultServiceAccount,
 }) => {
   const auth = await authorize({ serviceAccount });
   const docs = google.docs({ version: "v1", auth });
@@ -175,15 +175,15 @@ const appendToDocument = async ({
           {
             insertText: {
               location: {
-                index: 1
+                index: 1,
               },
-              text
-            }
-          }
-        ]
-      }
+              text,
+            },
+          },
+        ],
+      },
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };
@@ -194,15 +194,5 @@ module.exports = {
   getSheetList,
   createSheet,
   getDocument,
-  appendToDocument
+  appendToDocument,
 };
-
-async function go() {
-  const sheet = await fetchSheet({
-    sheetId: "1kLziCv8F3EHIOjJFGSP4KzoCQAhqzmQBkvR9SJLyW5M",
-    sheetName: "milric"
-  });
-  console.log(sheet);
-}
-
-go();
