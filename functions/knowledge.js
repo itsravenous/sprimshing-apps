@@ -71,7 +71,7 @@ const detailKnowledge = async (sheetname, itemname) => {
 exports.handler = async (event, context, callback) => {
   const { text, trigger_id } = getDataFromSlackRequest(event);
   let dictionaryName, entryName;
-  if (IGNORE_CATEGORIES) {
+  if (IGNORE_CATEGORIES === 'true') {
     dictionaryName = 'Sheet1'
     entryName = text
   } else {
