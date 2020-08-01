@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
-const { KNOWLEDGE_SHEET_ID: SHEET_ID } = process.env;
+const { KNOWLEDGE_SHEET_ID: SHEET_ID, IGNORE_CATEGORIES } = process.env;
 
 const fetchKnowledge = async sheetName => {
   try {
@@ -70,8 +70,14 @@ const detailKnowledge = async (sheetname, itemname) => {
 
 exports.handler = async (event, context, callback) => {
   const { text, trigger_id } = getDataFromSlackRequest(event);
-  let [dictionaryName, ...entryName] = text.split(" ");
-  entryName = entryName.join(" ");
+  let dictionaryName, entryName;
+  if (IGNORE_CATEGORIES) {
+    dictionaryName = 'Sheet1'
+    entryName = text
+  } else {
+    ([dictionaryName, ...entryName] = text.split(" "));
+    entryName = entryName.join(" ");
+  }
   let response;
   if (entryName) {
     response = await detailKnowledge(dictionaryName, entryName);
