@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
-const { KNOWLEDGE_SHEET_ID: SHEET_ID, IGNORE_CATEGORIES } = process.env;
+const { KNOWLEDGE_SHEET_ID: SHEET_ID, KNOWLEDGE_TAB_NAME } = process.env;
 
 const fetchKnowledge = async sheetName => {
   try {
@@ -43,36 +43,39 @@ const detailKnowledge = async (sheetname, itemname) => {
   try {
     knowledge = await fetchKnowledge(sheetname);
   } catch {
-    return "Nothing is known about the subject `" + sheetname + "`.";
+    throw new Error("Nothing is known about the subject `" + sheetname + "`.");
   }
 
-  let header = knowledge[0];
+  const header = knowledge[0];
+  const titleCol = header.findIndex(cell => cell === 'Title')
+  const imageCol = header.findIndex(cell => cell === 'Image')
+  const descriptionCol = header.findIndex(cell => cell === 'Description')
   let item = knowledge
     .slice(1)
-    .find(element => element[0].toLowerCase() === itemname.toLowerCase());
+    .find(element => element[titleCol].toLowerCase() === itemname.toLowerCase());
 
   if (!item) {
-    return (
+    throw new Error(
       "Nothing is known about `" +
       itemname +
       "` (at least not in the topic of `" +
       sheetname +
-      "`). Perhaps you could add it using the `/knowledge-add` command."
+      "`)."
     );
   }
-  var r = "";
-  var i;
-  for (i = 0; i < header.length; i++) {
-    r += header[i] + ": " + item[i] + "\n";
+
+  return {
+    title: item[titleCol],
+    image: item[imageCol],
+    description: item[descriptionCol],
   }
-  return r;
 };
 
 exports.handler = async (event, context, callback) => {
   const { text, trigger_id } = getDataFromSlackRequest(event);
   let dictionaryName, entryName;
-  if (IGNORE_CATEGORIES === 'true') {
-    dictionaryName = 'Sheet1'
+  if (KNOWLEDGE_TAB_NAME) {
+    dictionaryName = KNOWLEDGE_TAB_NAME
     entryName = text
   } else {
     ([dictionaryName, ...entryName] = text.split(" "));
@@ -80,16 +83,42 @@ exports.handler = async (event, context, callback) => {
   }
   let response;
   if (entryName) {
-    response = await detailKnowledge(dictionaryName, entryName);
+    try {
+      response = await detailKnowledge(dictionaryName, entryName);
+    } catch (e) {
+      await openSimpleModal({
+        title: `Knowledge`,
+        text: e.message,
+        trigger_id
+      });
+    }
+    await openModal({
+      title: entryName,
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": response.description
+          },
+          "accessory": {
+            "type": "image",
+            "image_url": response.image,
+            "alt_text": response.title
+          }
+        }
+      ],
+      trigger_id
+    });
   } else {
     response = await listKnowledge(dictionaryName);
+    await openSimpleModal({
+      title: `Knowledge`,
+      text: response,
+      trigger_id
+    });
   }
 
-  await openSimpleModal({
-    title: `Knowledge`,
-    text: response,
-    trigger_id
-  });
 
   callback(null, {
     statusCode: 200,
