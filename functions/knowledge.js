@@ -29,13 +29,9 @@ const listKnowledge = async sheetname => {
     return "Nothing is known about the subject `" + sheetname + "`";
   }
 
-  let header = knowledge[0][0];
-  console.log({ header });
-  let result = knowledge
-    .slice(1)
-    .map(element => element[0])
-    .join(", ");
-  return header + ": " + result;
+  const header = knowledge[0];
+  const titleCol = header.findIndex(cell => cell === 'Title')
+  return knowledge.map(row => row[titleCol])
 };
 
 const detailKnowledge = async (sheetname, itemname) => {
@@ -70,6 +66,7 @@ const detailKnowledge = async (sheetname, itemname) => {
     description: item[descriptionCol],
   }
 };
+exports.detailKnowledge = detailKnowledge;
 
 exports.handler = async (event, context, callback) => {
   const { text, trigger_id } = getDataFromSlackRequest(event);
@@ -93,7 +90,7 @@ exports.handler = async (event, context, callback) => {
       });
     }
     await openModal({
-      title: entryName,
+      title: response.title,
       "blocks": [
         {
           "type": "section",
@@ -112,9 +109,25 @@ exports.handler = async (event, context, callback) => {
     });
   } else {
     response = await listKnowledge(dictionaryName);
-    await openSimpleModal({
+    await openModal({
       title: `Knowledge`,
-      text: response,
+      blocks: response.map(title => (
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": title
+          },
+          "accessory": {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Find out more 👀",
+              "emoji": true
+            },
+            "value": `knowledge_${title}`
+          }
+        })),
       trigger_id
     });
   }
