@@ -2,7 +2,7 @@ const { getDataFromSlackRequest } = require("../utils");
 const { handler: ritunaHandler } = require("./rituna");
 const { handler: inventoryAddHandler } = require("./inventory-add");
 const { handler: inventoryHandler } = require("./inventory");
-const { detailKnowledge } = require("./knowledge");
+const { handler: knowledgeHandler, detailKnowledge } = require("./knowledge");
 const { KNOWLEDGE_TAB_NAME } = process.env;
 
 const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
@@ -34,15 +34,19 @@ exports.handler = async (event, context, callback) => {
   if (payload.callback_id === "inventory") {
     handler = inventoryHandler;
   }
+  if (payload.callback_id === "knowledge") {
+    handler = knowledgeHandler;
+  }
   if (payload.type === 'block_actions' && payload.actions[0].value.startsWith('knowledge_')) {
     callback(null, {
       statusCode: 200,
       body: ""
     });
 
+    // TODO move this somewhere nicer
     const title = payload.actions[0].value.replace('knowledge_', '')
     const response = await detailKnowledge(KNOWLEDGE_TAB_NAME, title)
-    const res = await pushModal({
+    await pushModal({
       title: response.title,
       "blocks": [
         {

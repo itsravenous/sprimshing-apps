@@ -69,7 +69,9 @@ const detailKnowledge = async (sheetname, itemname) => {
 exports.detailKnowledge = detailKnowledge;
 
 exports.handler = async (event, context, callback) => {
-  const { text, trigger_id } = getDataFromSlackRequest(event);
+  let { payload, text, trigger_id } = getDataFromSlackRequest(event);
+  if (payload) trigger_id = JSON.parse(payload).trigger_id; // If we come from a menu shortcut, use trigger_id from that
+
   let dictionaryName, entryName;
   if (KNOWLEDGE_TAB_NAME) {
     dictionaryName = KNOWLEDGE_TAB_NAME
@@ -109,7 +111,7 @@ exports.handler = async (event, context, callback) => {
     });
   } else {
     response = await listKnowledge(dictionaryName);
-    await openModal({
+    const re = await openModal({
       title: `Knowledge`,
       blocks: response.map(title => (
         {
@@ -130,6 +132,8 @@ exports.handler = async (event, context, callback) => {
         })),
       trigger_id
     });
+
+    console.log(await re.json())
   }
 
 

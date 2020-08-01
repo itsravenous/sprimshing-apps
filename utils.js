@@ -8,8 +8,8 @@ getDataFromSlackRequest = event =>
       key === ""
         ? value
         : decodeURIComponent(value)
-            .replace(/\+/g, " ")
-            .trim()
+          .replace(/\+/g, " ")
+          .trim()
   );
 
 openSimpleModal = async ({ title, text, trigger_id }) =>
@@ -25,6 +25,27 @@ openSimpleModal = async ({ title, text, trigger_id }) =>
       }
     ],
     trigger_id
+  });
+
+pushModal = async ({ title, blocks, trigger_id }) =>
+  fetch("https://slack.com/api/views.push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SLACK_TOKEN}`
+    },
+    body: JSON.stringify({
+      trigger_id,
+      view: {
+        type: "modal",
+        title: {
+          type: "plain_text",
+          text: title,
+          emoji: true
+        },
+        blocks
+      }
+    })
   });
 
 openModal = async ({ title, blocks, trigger_id }) =>
