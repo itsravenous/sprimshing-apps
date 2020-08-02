@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
 const { KNOWLEDGE_SHEET_ID: SHEET_ID, KNOWLEDGE_TAB_NAME } = process.env;
+const { itemNamesAreRoughlyEqual } = require('../utils')
 
 const fetchKnowledge = async sheetName => {
   try {
@@ -48,7 +49,7 @@ const detailKnowledge = async (sheetname, itemname) => {
   const descriptionCol = header.findIndex(cell => cell === 'Description')
   let item = knowledge
     .slice(1)
-    .find(element => element[titleCol].toLowerCase() === itemname.toLowerCase());
+    .find(element => itemNamesAreRoughlyEqual(element[titleCol], itemname));
 
   if (!item) {
     throw new Error(

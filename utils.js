@@ -1,6 +1,8 @@
 const fetch = require("node-fetch");
 const { SLACK_TOKEN } = process.env;
 
+const itemNamesAreRoughlyEqual = (item1, item2) => item1.toLowerCase().replace(/\W/g, '') === item2.toLowerCase().replace(/\W/g, '');
+
 getDataFromSlackRequest = event =>
   JSON.parse(
     '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
@@ -72,5 +74,6 @@ openModal = async ({ title, blocks, trigger_id }) =>
 module.exports = {
   getDataFromSlackRequest,
   openSimpleModal,
-  openModal
+  openModal,
+  itemNamesAreRoughlyEqual
 };
