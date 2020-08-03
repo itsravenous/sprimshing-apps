@@ -32,7 +32,7 @@ const listKnowledge = async sheetname => {
 
   const header = knowledge[0];
   const titleCol = header.findIndex(cell => cell === 'Title')
-  return knowledge.map(row => row[titleCol])
+  return knowledge.slice(1).map(row => row[titleCol])
 };
 
 const detailKnowledge = async (sheetname, itemname) => {
