@@ -1,3 +1,4 @@
+const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { RITUNA_SHEET_ID: SHEET_ID } = process.env;
 const { getDataFromSlackRequest } = require("../utils");
