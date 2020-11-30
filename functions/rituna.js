@@ -1,20 +1,20 @@
 const { fetchSheet } = require("../google-utils");
 const { RITUNA_SHEET_ID: SHEET_ID } = process.env;
-const { getDataFromSlackRequest } = require("../utils");
+const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
 
-const escapeForRegex = s => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
+const escapeForRegex = (s) => s.replace(/[-\/\\^$*+?.()|[\]{}\_]/g, "\\$&");
 
-const fetchDictionary = async dictionaryName => {
+const fetchDictionary = async (dictionaryName) => {
   const values = await fetchSheet({
     sheetId: SHEET_ID,
-    sheetName: dictionaryName
+    sheetName: dictionaryName,
   });
   return (
     values
       // Remove header row
       .slice(1)
       // Filter incompleye/empty rows
-      .filter(entry => entry[0] && entry[1])
+      .filter((entry) => entry[0] && entry[1])
   );
 };
 
@@ -23,7 +23,7 @@ const translate = ({ dictionary, text, reverse }) => {
   const toIndex = reverse ? 0 : 1;
   text = text.replace("_", "");
   let result = dictionary.find(
-    entry =>
+    (entry) =>
       //entry[fromIndex].trim() && entry[fromIndex].trim().toLowerCase() === text.toLowerCase()
       entry[fromIndex].trim().toLowerCase() === text.toLowerCase()
   );
@@ -50,7 +50,7 @@ const translate = ({ dictionary, text, reverse }) => {
   );
 };
 
-exports.debug = async name => {
+exports.debug = async (name) => {
   console.log(`Hello ${name}`);
   console.log(`SHEET_ID: ${SHEET_ID}`);
 };
@@ -66,16 +66,16 @@ exports.debug2 = async () => {
 exports.batchTranslate = async () => {
   const lookup = await fetchDictionary("vedich2");
   const dictionary = await fetchDictionary("vedich");
-  return lookup.map(element => {
+  return lookup.map((element) => {
     return [
       element[1],
-      translate({ dictionary, text: element[1], reverse: true })
+      translate({ dictionary, text: element[1], reverse: true }),
     ];
   });
 };
 
 exports.handler = async (event, context, callback) => {
-  let { text, payload } = getDataFromSlackRequest(event);
+  let { text, payload, trigger_id } = getDataFromSlackRequest(event);
   // Payload property indicates request is from a context menu "action"
   // We split the action by underscore to get the direction and dictionary
   let direction, dictionaryName, words;
@@ -90,21 +90,39 @@ exports.handler = async (event, context, callback) => {
   const response = translate({
     dictionary,
     text: words.join(" "),
-    reverse: direction === "from"
+    reverse: direction === "from",
   });
 
+  if (direction === "from") {
+    // Open "translate from" responses, which a user probably doesn't want to copy/paste
+    // in a modal to avoid cluttering up their view of the chat
+    openSimpleModal({
+      title: `Translate from ${dictionary}`,
+      text: response,
+      trigger_id,
+    });
+
+    // Send ack response
+    return callback(null, {
+      statusCode: 200,
+      body: response,
+    });
+  }
+
   if (payload) {
+    // If coming from a menu action then respond via that API
     console.log("responding to menu item with", response);
     const res = await fetch(payload.response_url, {
       method: "post",
       body: JSON.stringify({ text: response }),
-      response_type: "ephemeral"
+      response_type: "ephemeral",
     });
     callback(null, 200); // Send acknowledgment response (see https://api.slack.com/interactivity/handling#acknowledgment_response)
   } else {
+    // Otherwise (coming from slash command) respond directly using callback
     callback(null, {
       statusCode: 200,
-      body: response
+      body: response,
     });
   }
 };
