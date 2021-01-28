@@ -62,10 +62,9 @@ const main = async ({ channel_id }) => {
     "==================================================================",
     ...messages.map((message) => {
       const date = new Date(message.ts * 1000);
-      return `${date.getFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} ${
-        userIdsToNames[message.user]
-      }: ${message.text}`;
-    })
+      return `${date.getFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} ${message.username ||
+        userIdsToNames[message.user]}: ${message.text}`;
+    }),
   ].join("\n");
   Object.keys(userIdsToNames).forEach(userId => {
     const re = new RegExp(`<@${userId}>`, "g");
