@@ -6,7 +6,6 @@ const SCOPES = [
   "https://www.googleapis.com/auth/documents",
 ];
 
-console.log("GOOGLE_SERVICE_ACCOUNT", process.env.GOOGLE_SERVICE_ACCOUNT);
 const defaultServiceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 
 // Create auth from service account
