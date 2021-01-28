@@ -1,12 +1,11 @@
 const fetch = require("node-fetch");
 const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
-const {
-  SLACK_TOKEN,
-  SCRIBBLE_DOCUMENT_ID,
-  GM_GOOGLE_SERVICE_ACCOUNT,
-  GM_USERNAME
-} = process.env;
+const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID, GM_USERNAME } = process.env;
+
+const GM_GOOGLE_SERVICE_ACCOUNT = JSON.parse(
+  process.env.GM_GOOGLE_SERVICE_ACCOUNT
+);
 
 const main = async ({ channel_id }) => {
   // Get channel name
