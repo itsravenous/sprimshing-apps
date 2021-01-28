@@ -52,6 +52,8 @@ const main = async ({ channel_id }) => {
     return acc;
   }, {});
 
+  console.log({ userIdsToNames });
+
   // Replace user IDs with display names
   let lines = [
     channel.name,
