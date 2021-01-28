@@ -31,6 +31,8 @@ const main = async ({ channel_id }) => {
   // Ensure chronological order
   messages = messages.messages.sort((a, b) => a.ts - b.ts);
 
+  console.log({ messages });
+
   // Fetch every user present in the channel (messages contain user IDs, not names)
   const usersToLookup = messages
     .map(message => message.user)
