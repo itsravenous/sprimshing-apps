@@ -3,11 +3,6 @@ const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
 const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID, GM_USERNAME } = process.env;
 
-console.log("GM_GOOGLE_SERVICE_ACCOUNT", process.env.GM_GOOGLE_SERVICE_ACCOUNT);
-const GM_GOOGLE_SERVICE_ACCOUNT = JSON.parse(
-  process.env.GM_GOOGLE_SERVICE_ACCOUNT
-);
-
 const main = async ({ channel_id }) => {
   // Get channel name
   const { channel } = await (
@@ -77,7 +72,6 @@ const main = async ({ channel_id }) => {
   await appendToDocument({
     documentId: SCRIBBLE_DOCUMENT_ID,
     text: lines,
-    serviceAccount: GM_GOOGLE_SERVICE_ACCOUNT
   });
   return `This morsel of history has arrived at the scribbleshop for posteritisation ✉️`;
 };
