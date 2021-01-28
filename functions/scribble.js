@@ -55,7 +55,7 @@ const main = async ({ channel_id }) => {
   // Replace user IDs with display names
   let lines = [
     channel.name,
-    "=========================================================================",
+    "==================================================================",
     ...messages.map((message) => {
       const date = new Date(message.ts * 1000);
       return `${date.getFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} ${
@@ -72,7 +72,7 @@ const main = async ({ channel_id }) => {
   await appendToDocument({
     documentId: SCRIBBLE_DOCUMENT_ID,
     text:
-      lines + "\n\n===========================================================",
+      lines + "\n\n==========================================================",
   });
   return `This morsel of history has arrived at the scribbleshop for posteritisation ✉️`;
 };
