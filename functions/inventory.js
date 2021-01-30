@@ -126,7 +126,7 @@ exports.handler = async (event, context, callback) => {
   const inventoryBlocks = inventoryToBlocks(inventory);
   console.log({inventoryBlocks})
   const modalRes = await openModal({
-    title: `Inventory for ${user_name}`,
+    title: "Inventory",
     blocks: inventoryBlocks,
     trigger_id
   });
