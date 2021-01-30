@@ -108,7 +108,7 @@ exports.handler = async (event, context, callback) => {
   let { trigger_id, user_name, payload, text } = getDataFromSlackRequest(event);
 
   // Restrict use to GM user
-  if (user_name === GM_USERNAME && text.length) {
+  if ((true || user_name === GM_USERNAME) && text.length) {
     user_name = text
   }
 
