@@ -108,7 +108,7 @@ exports.handler = async (event, context, callback) => {
   let { trigger_id, user_name, payload, text } = getDataFromSlackRequest(event);
 
   // Restrict use to GM user
-  if ((true || user_name === GM_USERNAME) && text.length) {
+  if (user_name === GM_USERNAME && text.length) {
     user_name = text
   }
 
@@ -122,7 +122,9 @@ exports.handler = async (event, context, callback) => {
   console.log("Getting inventory for", user_name);
   console.log("===================================");
   const inventory = await getInventory(user_name);
+  console.log({inventory})
   const inventoryBlocks = inventoryToBlocks(inventory);
+  console.log({inventoryBlocks})
   const modalRes = await openModal({
     title: `Inventory for ${user_name}`,
     blocks: inventoryBlocks,
