@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { fetchSheet } = require("../google-utils");
 const { getDataFromSlackRequest, openSimpleModal } = require("../utils");
-const { INVENTORY_SHEET_ID: SHEET_ID, SLACK_TOKEN } = process.env;
+const { INVENTORY_SHEET_ID: SHEET_ID, SLACK_TOKEN, GM_USERNAME } = process.env;
 
 const getInventory = async character => {
   try {
@@ -105,7 +105,12 @@ const inventoryToBlocks = inventory => {
 exports.getInventory = getInventory;
 exports.inventoryToText = inventoryToText;
 exports.handler = async (event, context, callback) => {
-  let { trigger_id, user_name, payload } = getDataFromSlackRequest(event);
+  let { trigger_id, user_name, payload, text } = getDataFromSlackRequest(event);
+
+  // Restrict use to GM user
+  if ((true || user_name === GM_USERNAME) && text.length) {
+    user_name = text
+  }
 
   // If coming from shortcut, user_name not included in top level data, parse out user_name from user in payload
   if (payload) {

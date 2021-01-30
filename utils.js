@@ -1,18 +1,28 @@
 const fetch = require("node-fetch");
 const { SLACK_TOKEN } = process.env;
 
-const itemNamesAreRoughlyEqual = (item1, item2) => item1.toLowerCase().replace(/\W/g, '') === item2.toLowerCase().replace(/\W/g, '');
+const itemNamesAreRoughlyEqual = (item1, item2) =>
+  item1.toLowerCase().replace(/\W/g, "") ===
+  item2.toLowerCase().replace(/\W/g, "");
 
-getDataFromSlackRequest = event =>
-  JSON.parse(
-    '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    (key, value) =>
-      key === ""
-        ? value
-        : decodeURIComponent(value)
-          .replace(/\+/g, " ")
-          .trim()
-  );
+getDataFromSlackRequest = (event) => {
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch (e) {
+    body = JSON.parse(
+      '{"' + event.body.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
+      (key, value) =>
+        key === ""
+          ? value
+          : decodeURIComponent(value)
+              .replace(/\+/g, " ")
+              .trim()
+    );
+  }
+
+  return body;
+};
 
 openSimpleModal = async ({ title, text, trigger_id }) =>
   openModal({
@@ -22,11 +32,11 @@ openSimpleModal = async ({ title, text, trigger_id }) =>
         type: "section",
         text: {
           type: "mrkdwn",
-          text
-        }
-      }
+          text,
+        },
+      },
     ],
-    trigger_id
+    trigger_id,
   });
 
 pushModal = async ({ title, blocks, trigger_id }) =>
@@ -34,7 +44,7 @@ pushModal = async ({ title, blocks, trigger_id }) =>
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${SLACK_TOKEN}`
+      Authorization: `Bearer ${SLACK_TOKEN}`,
     },
     body: JSON.stringify({
       trigger_id,
@@ -43,11 +53,11 @@ pushModal = async ({ title, blocks, trigger_id }) =>
         title: {
           type: "plain_text",
           text: title,
-          emoji: true
+          emoji: true,
         },
-        blocks
-      }
-    })
+        blocks,
+      },
+    }),
   });
 
 openModal = async ({ title, blocks, trigger_id }) =>
@@ -55,7 +65,7 @@ openModal = async ({ title, blocks, trigger_id }) =>
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${SLACK_TOKEN}`
+      Authorization: `Bearer ${SLACK_TOKEN}`,
     },
     body: JSON.stringify({
       trigger_id,
@@ -64,16 +74,16 @@ openModal = async ({ title, blocks, trigger_id }) =>
         title: {
           type: "plain_text",
           text: title,
-          emoji: true
+          emoji: true,
         },
-        blocks
-      }
-    })
+        blocks,
+      },
+    }),
   });
 
 module.exports = {
   getDataFromSlackRequest,
   openSimpleModal,
   openModal,
-  itemNamesAreRoughlyEqual
+  itemNamesAreRoughlyEqual,
 };
