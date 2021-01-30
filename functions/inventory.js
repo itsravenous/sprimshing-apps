@@ -130,6 +130,7 @@ exports.handler = async (event, context, callback) => {
     blocks: inventoryBlocks,
     trigger_id
   });
+  console.log({modalRes})
   callback(null, {
     statusCode: 200,
     body: ""
