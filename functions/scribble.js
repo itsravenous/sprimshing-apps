@@ -85,6 +85,7 @@ const main = async (channel_id) => {
 
 exports.handler = async (event, context, callback) => {
   const slackData = getDataFromSlackRequest(event);
+  console.log({ slackData });
   //if (slackData.user_name !== GM_USERNAME) {
   //return callback(null, {
   //statusCode: 200,
