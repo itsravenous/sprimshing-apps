@@ -85,13 +85,13 @@ const main = async (channel_id) => {
 
 exports.handler = async (event, context, callback) => {
   const slackData = getDataFromSlackRequest(event);
-  console.log({ slackData });
-  //if (slackData.user_name !== GM_USERNAME) {
-  //return callback(null, {
-  //statusCode: 200,
-  //body: "Only the GM can use this command",
-  //});
-  //}
+
+  if (slackData.user_name && slackData.user_name !== GM_USERNAME) {
+    return callback(null, {
+      statusCode: 200,
+      body: "Only the GM can use this command",
+    });
+  }
 
   // Get channel ID from channel archive event if exists. Otherwise from main data (i.e. manual invocation)
   const channel_id = slackData.event
