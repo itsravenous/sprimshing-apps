@@ -3,47 +3,55 @@ const { handler: ritunaHandler } = require("./rituna");
 const { handler: inventoryAddHandler } = require("./inventory-add");
 const { handler: inventoryHandler } = require("./inventory");
 const { handler: knowledgeHandler, detailKnowledge } = require("./knowledge");
+const { handler: scribbleHandler } = require("./scribble");
 const { KNOWLEDGE_TAB_NAME } = process.env;
 
 const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
 
 exports.handler = async (event, context, callback) => {
-  console.log({ event });
-  let { challenge, type, text, payload } = getDataFromSlackRequest(event);
+  let {
+    challenge,
+    type,
+    payload = "{}",
+    event: eventData,
+  } = getDataFromSlackRequest(event);
+  console.log({ type, eventData, payload });
 
   // Respond to event subscription verification challenges
   if (type === "url_verification") {
     return callback(null, { statusCode: 200, body: challenge });
   }
 
-  if (!payload) {
-    // Payload required, return error
-    return callback(null, {
-      statusCode: 200,
-      body:
-        "The Sprimshing interaction handler received a request without a payload. This shouldn't happen.",
-    });
-  }
-
   payload = JSON.parse(payload);
   let handler;
 
+  // Determine which function to hand off to. TODO move this to config/routing
+  // Scribbleshop
+  if (eventData && eventData.type === "group_archive") {
+    console.log("scribble!");
+    handler = scribbleHandler;
+  }
+  // /inventory-add
   if (payload.view && payload.view.callback_id.startsWith("inventory_add")) {
     console.log("handling via inventory add");
     handler = inventoryAddHandler;
   }
+  // Translate from message context menu
   if (
     payload.type === "message_action" &&
     RITUNA_CALLBACK_IDS.includes(payload.callback_id)
   ) {
     handler = ritunaHandler;
   }
+  // Inventory menu action
   if (payload.callback_id === "inventory") {
     handler = inventoryHandler;
   }
+  // Knowledge menu action
   if (payload.callback_id === "knowledge") {
     handler = knowledgeHandler;
   }
+  // Knowledge modal action
   if (
     payload.type === "block_actions" &&
     payload.actions[0].value.startsWith("knowledge_")
