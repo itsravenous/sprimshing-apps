@@ -33,8 +33,6 @@ const main = async (channel_id) => {
   // Ensure chronological order
   messages = messages.messages.sort((a, b) => a.ts - b.ts);
 
-  console.log({ messages });
-
   // Fetch every user present in the channel (messages contain user IDs, not names)
   const usersToLookup = messages
     .map((message) => message.user)
@@ -75,12 +73,13 @@ const main = async (channel_id) => {
   });
 
   // Send text to google doc
-  await appendToDocument({
+  const docRes = await appendToDocument({
     documentId: SCRIBBLE_DOCUMENT_ID,
     text:
       lines +
       "\n\n==========================================================\n\n",
   });
+  console.log({ docRes });
   return `This morsel of history has arrived at the scribbleshop for posteritisation ✉️`;
 };
 
