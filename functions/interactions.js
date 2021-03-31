@@ -6,7 +6,15 @@ const { handler: knowledgeHandler, detailKnowledge } = require("./knowledge");
 const { handler: scribbleHandler } = require("./scribble");
 const { KNOWLEDGE_TAB_NAME } = process.env;
 
-const RITUNA_CALLBACK_IDS = ["from_vedich", "from_vanlic", "from_breinish"];
+const RITUNA_CALLBACK_IDS = [
+  "from_vedich",
+  "from_vanlic",
+  "from_breinish",
+  "from_melan",
+  "from_peric",
+  "from_alinic",
+  "from_dirahic",
+];
 
 exports.handler = async (event, context, callback) => {
   let {
