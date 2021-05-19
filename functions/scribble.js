@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
-const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID, GM_USERNAME, USER_SCRIBBLE_DOCUMENT_ID, PRIVILEGED_USERNAME } = process.env;
+const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_IDS, GM_USERNAME } = process.env;
 
 const main = async (channel_id, destination) => {
   // Get channel name
@@ -86,23 +86,26 @@ const main = async (channel_id, destination) => {
 exports.handler = async (event, context, callback) => {
   const slackData = getDataFromSlackRequest(event);
 
-  console.log('username!', slackData.user_name)
-  if (slackData.user_name && slackData.user_name !== GM_USERNAME && slackData.user_name !== PRIVILEGED_USERNAME) {
-    return callback(null, {
-      statusCode: 200,
-      body: "Only the GM can use this command",
-    });
-  }
+  const { user_name } = slackData
+  console.log('scribble request for username:', user_name)
 
   // Get channel ID from channel archive event if exists. Otherwise from main data (i.e. manual invocation)
   const channel_id = slackData.event
     ? slackData.event.channel
     : slackData.channel_id;
 
+  const scribbleDocumentIds = JSON.parse(SCRIBBLE_DOCUMENT_IDS);
+  const destination = scribbleDocumentIds[user_name];
+  if (!destination) {
+    return callback(null, {
+      statusCode: 200,
+      body: `You do not appear to have a personal scribbleshop account set up. Tell the admin your username is ${user_name} and that you would like to scribble.`,
+    });
+  }
+
   console.log("scribbling channel", channel_id);
   console.log("**************************");
 
-  const destination = slackData.user_name === GM_USERNAME ? SCRIBBLE_DOCUMENT_ID : USER_SCRIBBLE_DOCUMENT_ID
   callback(null, {
     statusCode: 200,
     body: await main(channel_id, destination),
