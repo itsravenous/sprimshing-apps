@@ -1,9 +1,9 @@
 const fetch = require("node-fetch");
 const { getDataFromSlackRequest } = require("../utils");
 const { appendToDocument } = require("../google-utils");
-const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID, GM_USERNAME } = process.env;
+const { SLACK_TOKEN, SCRIBBLE_DOCUMENT_ID, GM_USERNAME, USER_SCRIBBLE_DOCUMENT_ID, PRIVILEGED_USERNAME } = process.env;
 
-const main = async (channel_id) => {
+const main = async (channel_id, destination) => {
   // Get channel name
   const { channel } = await (
     await fetch(
@@ -74,7 +74,7 @@ const main = async (channel_id) => {
 
   // Send text to google doc
   const docRes = await appendToDocument({
-    documentId: SCRIBBLE_DOCUMENT_ID,
+    documentId: destination,
     text:
       lines +
       "\n\n==========================================================\n\n",
@@ -86,7 +86,7 @@ const main = async (channel_id) => {
 exports.handler = async (event, context, callback) => {
   const slackData = getDataFromSlackRequest(event);
 
-  if (slackData.user_name && slackData.user_name !== GM_USERNAME) {
+  if (slackData.user_name && slackData.user_name !== GM_USERNAME && slackData.user_name !== PRIVILEGED_USERNAME) {
     return callback(null, {
       statusCode: 200,
       body: "Only the GM can use this command",
@@ -101,8 +101,9 @@ exports.handler = async (event, context, callback) => {
   console.log("scribbling channel", channel_id);
   console.log("**************************");
 
+  const destination = slackData.user_name === GM_USERNAME ? SCRIBBLE_DOCUMENT_ID : USER_SCRIBBLE_DOCUMENT_ID
   callback(null, {
     statusCode: 200,
-    body: await main(channel_id),
+    body: await main(channel_id, destination),
   });
 };
