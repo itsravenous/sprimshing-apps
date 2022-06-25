@@ -6,7 +6,7 @@
     "@itsravenous/google-sheets-public": "^2.0.0",
     "dotenv": "^8.2.0",
     "googleapis": "^73.0.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "prettier": "^2.2.1"
