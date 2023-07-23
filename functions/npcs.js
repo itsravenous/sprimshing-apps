@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const { getDataFromSlackRequest } = require('../utils');
 const { fetchSheet } = require('../google-utils');
-const { NPC_SHEET_ID: SHEET_ID, GOOGLE_API_KEY, SLACK_TOKEN, GM_USERNAME } = process.env;
+const { NPC_DEBUG_MODE, NPC_SHEET_ID: SHEET_ID, GOOGLE_API_KEY, SLACK_TOKEN, GM_USERNAME } = process.env;
 console.log(process.env);
 // Fetches NPCs from shared Google sheet
 const fetchNpcs = async () => {
@@ -40,7 +40,8 @@ exports.handler = async (event, context, callback) => {
 	const { user_name, text, channel_id } = getDataFromSlackRequest(event);
 
 	// Restrict use to GM user if defined
-	if (GM_USERNAME && user_name !== GM_USERNAME) {
+	console.log({NPC_DEBUG_MODE})
+	if (NPC_DEBUG_MODE != 'true' && GM_USERNAME && user_name !== GM_USERNAME) {
 		return callback(null, {
 			statusCode: 200,
 			body: 'Only the GM can use this command',
